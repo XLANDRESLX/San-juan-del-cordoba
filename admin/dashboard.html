@@ -149,7 +149,7 @@
           if (comentarios.status === 'success' && Array.isArray(comentarios.data)) {
             comentarios.data.slice(0, 5).forEach(c => {
               items.push(`<div style="padding:var(--space-sm) 0;border-bottom:1px solid var(--admin-border);font-size:var(--fs-sm);">
-                <strong>${c.nombre || 'Anónimo'}</strong> comentó en un artículo <span style="color:var(--admin-text-muted);">${c.fecha || ''}</span>
+                <strong>${window.sanjuanEscape.html(c.nombre || 'Anónimo')}</strong> comentó en un artículo <span style="color:var(--admin-text-muted);">${window.sanjuanEscape.html(c.fecha || '')}</span>
               </div>`);
             });
           }
@@ -157,7 +157,7 @@
           if (contacto.status === 'success' && Array.isArray(contacto.data)) {
             contacto.data.slice(0, 3).forEach(c => {
               items.push(`<div style="padding:var(--space-sm) 0;border-bottom:1px solid var(--admin-border);font-size:var(--fs-sm);">
-                <strong>${c.nombre || 'Sin nombre'}</strong> envió un mensaje de contacto <span style="color:var(--admin-text-muted);">${c.fecha || ''}</span>
+                <strong>${window.sanjuanEscape.html(c.nombre || 'Sin nombre')}</strong> envió un mensaje de contacto <span style="color:var(--admin-text-muted);">${window.sanjuanEscape.html(c.fecha || '')}</span>
               </div>`);
             });
           }

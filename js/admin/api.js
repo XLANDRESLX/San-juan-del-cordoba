@@ -42,6 +42,9 @@ async function adminRequest(endpointKey, action, data = {}, method = 'POST') {
     });
     const json = await res.json();
     activeControllers.delete(endpointKey);
+    if (json && json.status === 'error' && /^No autorizado/i.test(json.message || '') && window.sanjuanAuth) {
+      window.sanjuanAuth.logout();
+    }
     return json;
   } catch (err) {
     activeControllers.delete(endpointKey);

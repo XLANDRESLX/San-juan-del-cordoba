@@ -36,8 +36,7 @@ web-Sanjuan/
 ├── sitemap.xml
 ├── robots.txt
 ├── package.json
-├── DEPENDENCIAS.md
-└── CONFIGURACION.md
+└── DEPENDENCIAS.md
 ```
 
 ## Datos y backend

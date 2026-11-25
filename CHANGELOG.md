@@ -1,6 +1,26 @@
 # CHANGELOG — WEB SANJUAN
 
 
+## [10.2.0] — 2026-11-25 — Endurecimiento de seguridad
+
+### Corregido (frontend)
+- XSS en el panel: los datos que llegan de la API (títulos, autores, nombres de visitantes, etc.) ahora se escapan antes de insertarse en las tablas y el dashboard. Antes, el nombre escrito en el formulario público de contacto se ejecutaba en el navegador del administrador.
+- Cierre de sesión real: al salir se invalida el token en el servidor; si el token vence o se revoca, el panel vuelve al login.
+- Multimedia: se retira SVG de los formatos permitidos.
+- Documentos internos (`AUDITORIA_TECNICA.md`, `PLAN_IMPLEMENTACION.md`, `CONFIGURACION.md`) movidos a `docs-internos/`, excluida del repositorio mediante `.gitignore`.
+
+### Corregido (backend, `Code.gs` — se despliega aparte)
+- Validación de correo que rechazaba todos los correos válidos (contacto, newsletter y comentarios).
+- Control de roles: solo administradores gestionan usuarios y configuración general.
+- Freno a fuerza bruta en el login (por usuario y global).
+- Contraseñas con HMAC-SHA256, sal aleatoria e iteraciones; los hashes antiguos se migran solos en el siguiente inicio de sesión.
+- Tokens de sesión aleatorios firmados (ya no `Math.random()`); logout real e invalidación de sesiones al desactivar, borrar o cambiar la clave de un usuario.
+- Límite de envíos de formularios con `CacheService` (expira solo; ya no llena `PropertiesService`) y límite global.
+- Los borradores ya no se pueden leer por slug; los comentarios públicos ya no exponen correos.
+- Neutralización de fórmulas en Google Sheets; validación de firma real de imágenes; sin SVG; máximo 10 archivos por envío.
+- Mensajes de error genéricos al cliente (el detalle queda en el registro de Apps Script).
+- No se puede eliminar el propio usuario ni dejar el sistema sin administradores activos.
+
 ## [10.1.0] — 2026-11-24 — Correcciones UI/UX
 
 ### Corregido

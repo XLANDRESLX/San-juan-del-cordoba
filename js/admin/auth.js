@@ -9,6 +9,19 @@
   const TOKEN_KEY = 'sanjuan_admin_token';
   const USER_KEY = 'sanjuan_admin_user';
 
+  // Escape de datos antes de insertarlos con innerHTML (evita XSS en el panel)
+  const ENTIDADES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' };
+  const aTexto = (v) => String(v === null || v === undefined ? '' : v);
+  window.sanjuanEscape = Object.freeze({
+    html: (v) => aTexto(v).replace(/[&<>"'`]/g, (c) => ENTIDADES[c]),
+    id: (v) => aTexto(v).replace(/[^\w.-]/g, ''),
+    cls: (v) => aTexto(v).replace(/[^\w-]/g, ''),
+    url: (v) => {
+      const raw = aTexto(v).trim();
+      return /^https?:\/\//i.test(raw) ? raw.replace(/[&<>"'`]/g, (c) => ENTIDADES[c]) : '';
+    }
+  });
+
 class Auth {
   constructor() {
     this.token = sessionStorage.getItem(TOKEN_KEY);
@@ -67,6 +80,18 @@ class Auth {
 
   // Cierra sesión
   logout() {
+    const token = this.token;
+    if (token && ADMIN_API_BASE) {
+      // Invalida el token también en el servidor
+      try {
+        fetch(ADMIN_API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ type: 'logout', token }),
+          keepalive: true
+        }).catch(function () {});
+      } catch (e) { /* no bloquear el cierre local */ }
+    }
     this.clearSession();
     window.location.href = sitePath('admin/login.html');
   }

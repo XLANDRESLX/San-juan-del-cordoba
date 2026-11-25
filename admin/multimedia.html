@@ -49,7 +49,6 @@
             <option value="jpg">JPG / JPEG</option>
             <option value="png">PNG</option>
             <option value="webp">WebP</option>
-            <option value="svg">SVG</option>
           </select>
         </div>
         <div class="form__grupo" style="margin-bottom:0;">
@@ -75,7 +74,7 @@
 
       <div style="border:2px dashed var(--color-borde);border-radius:var(--radius-lg);padding:var(--space-2xl);background:var(--color-fondo-suave);margin-bottom:var(--space-lg);" id="dropZone">
         <p style="font-size:var(--fs-lg);color:var(--admin-text-muted);margin-bottom:var(--space-sm);">📁 Arrastra archivos aquí o haz clic</p>
-        <input type="file" id="inputArchivos" multiple accept="image/jpeg,image/png,image/webp,image/svg+xml" style="display:none;">
+        <input type="file" id="inputArchivos" multiple accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;">
         <button type="button" class="btn-admin btn-admin--primario" onclick="document.getElementById('inputArchivos').click()">Seleccionar archivos</button>
         <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);margin-top:var(--space-md);">Formatos: JPG, PNG, WebP, SVG. Máximo 5 MB por archivo.</p>
       </div>
@@ -259,7 +258,7 @@
       function procesarArchivos(files) {
         const validos = [];
         for (const file of files) {
-          if (!file.type.match(/image\/(jpeg|png|webp|svg\+xml)/)) {
+          if (!file.type.match(/image\/(jpeg|png|webp|gif)/)) {
             mostrarMsg(`Archivo no permitido: ${file.name}`, 'error');
             continue;
           }
@@ -301,7 +300,7 @@
             item.innerHTML = `
               <img src="${e.target.result}" alt="preview" style="width:48px;height:48px;object-fit:cover;border-radius:var(--radius-sm);">
               <div style="flex:1;min-width:0;">
-                <div style="font-size:var(--fs-sm);font-weight:600;color:var(--admin-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${file.name}</div>
+                <div style="font-size:var(--fs-sm);font-weight:600;color:var(--admin-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${window.sanjuanEscape.html(file.name)}</div>
                 <div style="font-size:var(--fs-xs);color:var(--admin-text-muted);">(${ (file.size/1024).toFixed(1) } KB)</div>
               </div>
               <button type="button" class="btn-admin btn-admin--sm btn-admin--peligro" onclick="removerArchivo(${idx})">✕</button>

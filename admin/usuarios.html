@@ -141,13 +141,13 @@
         }
         tbody.innerHTML = usuarios.map(u => `
           <tr>
-            <td>${u.usuario || '(sin nombre)'}</td>
-            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${u.rol || 'editor'}</td>
-            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${u.fecha_creado || '-'}</td>
+            <td>${window.sanjuanEscape.html(u.usuario || '(sin nombre)')}</td>
+            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${window.sanjuanEscape.html(u.rol || 'editor')}</td>
+            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${window.sanjuanEscape.html(u.fecha_creado || '-')}</td>
             <td><span class="estado-badge estado-${u.activo === 'si' ? 'activo' : 'inactivo'}">${u.activo === 'si' ? 'Activo' : 'Inactivo'}</span></td>
             <td>
-              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="editarUsuario('${u.id}')" title="Editar">✏️</button>
-              <button class="btn-admin btn-admin--sm btn-admin--peligro" onclick="eliminarUsuario('${u.id}')" title="Eliminar">🗑️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="editarUsuario('${window.sanjuanEscape.id(u.id)}')" title="Editar">✏️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--peligro" onclick="eliminarUsuario('${window.sanjuanEscape.id(u.id)}')" title="Eliminar">🗑️</button>
             </td>
           </tr>
         `).join('');

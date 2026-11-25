@@ -234,17 +234,17 @@
         tbody.innerHTML = articulos.map(a => `
           <tr>
             <td>
-              ${a.imagen_url ? `<img src="${a.imagen_url}" alt="thumb" style="width:40px;height:40px;border-radius:var(--radius);object-fit:cover;">` : '<span style="color:var(--admin-text-muted);font-size:var(--fs-xs);">Sin imagen</span>'}
+              ${a.imagen_url ? `<img src="${window.sanjuanEscape.url(a.imagen_url)}" alt="thumb" style="width:40px;height:40px;border-radius:var(--radius);object-fit:cover;">` : '<span style="color:var(--admin-text-muted);font-size:var(--fs-xs);">Sin imagen</span>'}
             </td>
-            <td>${a.titulo || '(sin título)'}</td>
-            <td><span style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${a.categoria || '-'}</span></td>
-            <td>${a.autor || '-'}</td>
-            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${a.fecha_publicacion || '-'}</td>
-            <td><span class="estado-badge estado-${a.estado || 'borrador'}">${a.estado || 'borrador'}</span></td>
+            <td>${window.sanjuanEscape.html(a.titulo || '(sin título)')}</td>
+            <td><span style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${window.sanjuanEscape.html(a.categoria || '-')}</span></td>
+            <td>${window.sanjuanEscape.html(a.autor || '-')}</td>
+            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${window.sanjuanEscape.html(a.fecha_publicacion || '-')}</td>
+            <td><span class="estado-badge estado-${window.sanjuanEscape.cls(a.estado || 'borrador')}">${window.sanjuanEscape.html(a.estado || 'borrador')}</span></td>
             <td>
-              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="editarArticulo('${a.id}')" title="Editar">✏️</button>
-              <button class="btn-admin btn-admin--sm btn-admin--peligro" onclick="eliminarArticulo('${a.id}')" title="Eliminar">🗑️</button>
-              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="cambiarEstadoArticulo('${a.id}', '${a.estado === 'publicado' ? 'borrador' : 'publicado'}')" title="Cambiar estado">${a.estado === 'publicado' ? 'Despublicar' : 'Publicar'}</button>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="editarArticulo('${window.sanjuanEscape.id(a.id)}')" title="Editar">✏️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--peligro" onclick="eliminarArticulo('${window.sanjuanEscape.id(a.id)}')" title="Eliminar">🗑️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="cambiarEstadoArticulo('${window.sanjuanEscape.id(a.id)}', '${a.estado === 'publicado' ? 'borrador' : 'publicado'}')" title="Cambiar estado">${a.estado === 'publicado' ? 'Despublicar' : 'Publicar'}</button>
             </td>
           </tr>
         `).join('');

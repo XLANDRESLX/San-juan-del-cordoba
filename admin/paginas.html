@@ -148,13 +148,13 @@
         }
         tbody.innerHTML = paginas.map(p => `
           <tr>
-            <td>${p.titulo || '(sin título)'}</td>
-            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);font-family:monospace;">/${p.slug || ''}.html</td>
-            <td><span class="estado-badge estado-${p.estado || 'borrador'}">${p.estado || 'borrador'}</span></td>
+            <td>${window.sanjuanEscape.html(p.titulo || '(sin título)')}</td>
+            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);font-family:monospace;">/${window.sanjuanEscape.html(p.slug || '')}.html</td>
+            <td><span class="estado-badge estado-${window.sanjuanEscape.cls(p.estado || 'borrador')}">${window.sanjuanEscape.html(p.estado || 'borrador')}</span></td>
             <td>
-              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="editarPagina('${p.id}')" title="Editar">✏️</button>
-              <button class="btn-admin btn-admin--sm btn-admin--peligro" onclick="eliminarPagina('${p.id}')" title="Eliminar">🗑️</button>
-              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="cambiarEstadoPagina('${p.id}', '${p.estado === 'publicado' ? 'borrador' : 'publicado'}')" title="Cambiar estado">${p.estado === 'publicado' ? 'Despublicar' : 'Publicar'}</button>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="editarPagina('${window.sanjuanEscape.id(p.id)}')" title="Editar">✏️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--peligro" onclick="eliminarPagina('${window.sanjuanEscape.id(p.id)}')" title="Eliminar">🗑️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="cambiarEstadoPagina('${window.sanjuanEscape.id(p.id)}', '${p.estado === 'publicado' ? 'borrador' : 'publicado'}')" title="Cambiar estado">${p.estado === 'publicado' ? 'Despublicar' : 'Publicar'}</button>
             </td>
           </tr>
         `).join('');
