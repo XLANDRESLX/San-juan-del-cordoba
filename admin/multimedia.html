@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Biblioteca Multimedia – Panel de Administración</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/x-icon">
+</head>
+<body class="admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="../assets/img/logo.png" alt="Logo IE San Juan del Córdoba" width="48">
+        <h1>Admin Sanjuan</h1>
+      </div>
+      <ul class="admin-nav">
+        <li><a href="../admin/dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="../admin/articulos.html"><span>📰</span> Artículos</a></li>
+        <li><a href="../admin/paginas.html"><span>📄</span> Páginas</a></li>
+        <li><a href="../admin/multimedia.html" class="active"><span>🖼️</span> Multimedia</a></li>
+        <li><a href="../admin/institucional.html"><span>🏫</span> Institucional</a></li>
+        <li><a href="../admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        <li><a href="../admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+      </ul>
+    </aside>
+
+    <div class="admin-content">
+      <header class="admin-header">
+        <div>
+          <h2>Biblioteca Multimedia</h2>
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);">Gestiona imágenes y archivos para usar en artículos y páginas.</p>
+        </div>
+        <div style="display:flex;gap:var(--space-md);align-items:center;">
+          <input type="text" id="buscarImagenes" placeholder="Buscar imágenes..." style="padding:8px 12px;border:1px solid var(--admin-border);border-radius:var(--radius);font-family:inherit;width:260px;">
+          <button class="btn-admin btn-admin--primario" onclick="abrirModalSubida()">+ Subir archivos</button>
+        </div>
+      </header>
+
+      <div id="msgMultimedia" class="msg" style="display:none;"></div>
+
+      <div style="display:flex;gap:var(--space-lg);margin-bottom:var(--space-xl);flex-wrap:wrap;">
+        <div class="form__grupo" style="margin-bottom:0;">
+          <label style="display:block;margin-bottom:var(--space-sm);font-size:var(--fs-sm);font-weight:600;">Formato</label>
+          <select id="filtroFormato" style="padding:8px 12px;border:1px solid var(--admin-border);border-radius:var(--radius);font-family:inherit;">
+            <option value="">Todos los formatos</option>
+            <option value="jpg">JPG / JPEG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+            <option value="svg">SVG</option>
+          </select>
+        </div>
+        <div class="form__grupo" style="margin-bottom:0;">
+          <label style="display:block;margin-bottom:var(--space-sm);font-size:var(--fs-sm);font-weight:600;">Ordenar por</label>
+          <select id="ordenarImagenes" style="padding:8px 12px;border:1px solid var(--admin-border);border-radius:var(--radius);font-family:inherit;">
+            <option value="fecha">Más recientes</option>
+            <option value="nombre">Nombre alfabético</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="galeria" id="galeriaMultimedia">
+        <!-- Miniaturas se cargan aquí -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal subir archivo -->
+  <div id="modalSubida" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:var(--space-lg);">
+    <div class="form-admin" style="max-width:500px;width:100%;text-align:center;">
+      <h2>Subir imágenes</h2>
+      <div id="msgSubida" class="msg" style="margin-bottom:var(--space-lg);display:none;"></div>
+
+      <div style="border:2px dashed var(--color-borde);border-radius:var(--radius-lg);padding:var(--space-2xl);background:var(--color-fondo-suave);margin-bottom:var(--space-lg);" id="dropZone">
+        <p style="font-size:var(--fs-lg);color:var(--admin-text-muted);margin-bottom:var(--space-sm);">📁 Arrastra archivos aquí o haz clic</p>
+        <input type="file" id="inputArchivos" multiple accept="image/jpeg,image/png,image/webp,image/svg+xml" style="display:none;">
+        <button type="button" class="btn-admin btn-admin--primario" onclick="document.getElementById('inputArchivos').click()">Seleccionar archivos</button>
+        <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);margin-top:var(--space-md);">Formatos: JPG, PNG, WebP, SVG. Máximo 5 MB por archivo.</p>
+      </div>
+
+      <div id="listaPrevia" style="display:flex;flex-direction:column;gap:var(--space-md);margin-bottom:var(--space-lg);max-height:200px;overflow-y:auto;"></div>
+
+      <button type="button" class="btn-admin btn-admin--primario" id="btnSubirArchivos" style="display:none;">Subir archivos seleccionados</button>
+      <button type="button" class="btn-admin btn-admin--secundario" onclick="cerrarModalSubida()">Cancelar</button>
+    </div>
+  </div>
+
+  <script src="../js/app-config.js"></script>
+  <script src="../js/admin/auth.js?v=5.0.0"></script>
+  <script src="../js/admin/api.js?v=5.0.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.sanjuanAuth.requireAuth();
+
+      const galeria = document.getElementById('galeriaMultimedia');
+      const msg = document.getElementById('msgMultimedia');
+      const dropZone = document.getElementById('dropZone');
+      const inputArchivos = document.getElementById('inputArchivos');
+      const listaPrevia = document.getElementById('listaPrevia');
+      const btnSubir = document.getElementById('btnSubirArchivos');
+      const archivosSeleccionados = [];
+
+      function mostrarMsg(texto, tipo) {
+        msg.textContent = texto;
+        msg.className = `msg msg--${tipo}`;
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 5000);
+      }
+
+      let imagenesCargadas = [];
+
+      function escapeHtml(valor) {
+        return String(valor == null ? '' : valor)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      async function cargarImagenes() {
+        galeria.innerHTML = '<p style="color:var(--admin-text-muted);">Cargando biblioteca...</p>';
+        try {
+          const resultado = await window.sanjuanAdminAPI.MultimediaAPI.listar();
+          if (resultado.status === 'success') {
+            imagenesCargadas = Array.isArray(resultado.data) ? resultado.data : [];
+            renderizarGaleria();
+          } else {
+            galeria.innerHTML = '<p style="color:var(--admin-danger);">No se pudo cargar la biblioteca.</p>';
+            mostrarMsg(resultado.message || 'Error al cargar imágenes.', 'error');
+          }
+        } catch (err) {
+          galeria.innerHTML = '<p style="color:var(--admin-danger);">Error de red al cargar imágenes.</p>';
+        }
+      }
+
+      function renderizarGaleria() {
+        const q = document.getElementById('buscarImagenes').value.trim().toLowerCase();
+        const formato = document.getElementById('filtroFormato').value;
+        const orden = document.getElementById('ordenarImagenes').value;
+
+        let lista = imagenesCargadas.filter(img => {
+          const nombre = String(img.nombre || '').toLowerCase();
+          const coincideTexto = !q || nombre.includes(q);
+          const coincideFormato = !formato || String(img.formato || '').toLowerCase() === formato;
+          return coincideTexto && coincideFormato;
+        });
+
+        if (orden === 'nombre') {
+          lista.sort((a, b) => String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es'));
+        } else {
+          lista.sort((a, b) => new Date(b.fecha_subido || 0) - new Date(a.fecha_subido || 0));
+        }
+
+        if (lista.length === 0) {
+          galeria.innerHTML = '<p style="color:var(--admin-text-muted);text-align:center;padding:var(--space-xl);">' +
+            (imagenesCargadas.length === 0 ? 'No hay imágenes subidas.' : 'No hay imágenes que coincidan con el filtro.') + '</p>';
+          return;
+        }
+
+        galeria.innerHTML = lista.map(img => {
+          const url = escapeHtml(img.url || '');
+          const nombre = escapeHtml(img.nombre || 'Sin nombre');
+          const formatoImg = escapeHtml(img.formato || '');
+          const id = escapeHtml(img.id || '');
+          const tamano = img.tamano ? (img.tamano / 1024).toFixed(1) + ' KB' : '';
+          return `
+          <div class="multimedia-item" style="border:1px solid var(--admin-border);border-radius:var(--radius-lg);overflow:hidden;background:#fff;display:flex;flex-direction:column;">
+            <img src="${url}" alt="${nombre}" loading="lazy" data-copiar-url="${url}" data-nombre="${nombre}" title="Clic para copiar la URL" style="width:100%;height:150px;object-fit:cover;cursor:pointer;">
+            <div style="padding:var(--space-sm);display:flex;justify-content:space-between;align-items:center;gap:var(--space-sm);background:var(--admin-bg);">
+              <div style="min-width:0;">
+                <div style="font-size:var(--fs-sm);font-weight:600;color:var(--admin-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nombre}</div>
+                <div style="font-size:var(--fs-xs);color:var(--admin-text-muted);">${formatoImg}${tamano ? ' • ' + tamano : ''}</div>
+              </div>
+              <button class="btn-admin btn-admin--sm btn-admin--peligro" data-eliminar-id="${id}" title="Eliminar">🗑️</button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      // Delegación de eventos para copiar URL / eliminar
+      galeria.addEventListener('click', (e) => {
+        const imagen = e.target.closest('[data-copiar-url]');
+        if (imagen) {
+          copiarUrl(imagen.getAttribute('data-copiar-url'), imagen.getAttribute('data-nombre'));
+          return;
+        }
+        const btn = e.target.closest('[data-eliminar-id]');
+        if (btn) {
+          eliminarImagen(btn.getAttribute('data-eliminar-id'));
+        }
+      });
+
+      function copiarUrl(url, nombre) {
+        const aviso = () => mostrarMsg('URL copiada: ' + url, 'ok');
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(url).then(aviso).catch(() => {
+            mostrarMsg('No se pudo copiar la URL. Cópiala manualmente: ' + url, 'error');
+          });
+        } else {
+          const input = document.createElement('input');
+          input.value = url;
+          document.body.appendChild(input);
+          input.select();
+          try {
+            document.execCommand('copy');
+            aviso();
+          } catch (err) {
+            mostrarMsg('Copia manualmente la URL: ' + url, 'error');
+          }
+          document.body.removeChild(input);
+        }
+      }
+
+      async function eliminarImagen(id) {
+        if (!id) return;
+        if (!confirm('¿Estás seguro de eliminar esta imagen?')) return;
+        try {
+          const resultado = await window.sanjuanAdminAPI.MultimediaAPI.eliminar(id);
+          if (resultado.status === 'success') {
+            mostrarMsg('Imagen eliminada correctamente.', 'ok');
+            cargarImagenes();
+          } else {
+            mostrarMsg(resultado.message || 'Error al eliminar.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red.', 'error');
+        }
+      }
+
+      // Drag and drop
+      dropZone.addEventListener('click', () => inputArchivos.click());
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = 'var(--color-primario)';
+        dropZone.style.background = 'rgba(20, 66, 107, 0.05)';
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = 'var(--color-borde)';
+        dropZone.style.background = 'var(--color-fondo-suave)';
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = 'var(--color-borde)';
+        dropZone.style.background = 'var(--color-fondo-suave)';
+        const files = Array.from(e.dataTransfer.files);
+        procesarArchivos(files);
+      });
+
+      inputArchivos.addEventListener('change', (e) => {
+        procesarArchivos(Array.from(e.target.files));
+      });
+
+      function procesarArchivos(files) {
+        const validos = [];
+        for (const file of files) {
+          if (!file.type.match(/image\/(jpeg|png|webp|svg\+xml)/)) {
+            mostrarMsg(`Archivo no permitido: ${file.name}`, 'error');
+            continue;
+          }
+          if (file.size > 5 * 1024 * 1024) {
+            mostrarMsg(`Archivo demasiado grande: ${file.name} (máx. 5 MB)`, 'error');
+            continue;
+          }
+          validos.push(file);
+        }
+
+        for (const file of validos) {
+          if (!archivosSeleccionados.some(f => f.name === file.name && f.size === file.size)) {
+            archivosSeleccionados.push(file);
+          }
+        }
+
+        const totalBytes = archivosSeleccionados.reduce((suma, f) => suma + f.size, 0);
+        if (totalBytes > 25 * 1024 * 1024) {
+          mostrarMsg('La selección supera los 25 MB. Sube menos archivos a la vez.', 'error');
+        }
+
+        renderizarPrevia();
+        btnSubir.style.display = archivosSeleccionados.length > 0 ? 'inline-block' : 'none';
+      }
+
+      function renderizarPrevia() {
+        listaPrevia.innerHTML = '';
+        archivosSeleccionados.forEach((file, idx) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const item = document.createElement('div');
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.gap = 'var(--space-sm)';
+            item.style.padding = 'var(--space-sm)';
+            item.style.background = '#fff';
+            item.style.border = '1px solid var(--admin-border)';
+            item.style.borderRadius = 'var(--radius)';
+            item.innerHTML = `
+              <img src="${e.target.result}" alt="preview" style="width:48px;height:48px;object-fit:cover;border-radius:var(--radius-sm);">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:var(--fs-sm);font-weight:600;color:var(--admin-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${file.name}</div>
+                <div style="font-size:var(--fs-xs);color:var(--admin-text-muted);">(${ (file.size/1024).toFixed(1) } KB)</div>
+              </div>
+              <button type="button" class="btn-admin btn-admin--sm btn-admin--peligro" onclick="removerArchivo(${idx})">✕</button>
+            `;
+            listaPrevia.appendChild(item);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      window.removerArchivo = (idx) => {
+        archivosSeleccionados.splice(idx, 1);
+        renderizarPrevia();
+        btnSubir.style.display = archivosSeleccionados.length > 0 ? 'inline-block' : 'none';
+      };
+
+      window.abrirModalSubida = () => {
+        archivosSeleccionados.length = 0;
+        renderizarPrevia();
+        btnSubir.style.display = 'none';
+        document.getElementById('msgSubida').style.display = 'none';
+        document.getElementById('modalSubida').style.display = 'flex';
+      };
+
+      window.cerrarModalSubida = () => {
+        document.getElementById('modalSubida').style.display = 'none';
+      };
+
+      // Convierte un File del navegador a base64 para enviarlo al backend
+      function archivoABase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const resultado = String(reader.result || '');
+            const coma = resultado.indexOf(',');
+            resolve({
+              nombre: file.name,
+              mimeType: file.type,
+              base64: coma !== -1 ? resultado.slice(coma + 1) : resultado,
+              descripcion: ''
+            });
+          };
+          reader.onerror = () => reject(new Error('No se pudo leer ' + file.name));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      btnSubir.addEventListener('click', async () => {
+        if (archivosSeleccionados.length === 0) return;
+
+        const totalBytes = archivosSeleccionados.reduce((suma, f) => suma + f.size, 0);
+        if (totalBytes > 25 * 1024 * 1024) {
+          document.getElementById('msgSubida').textContent = 'La selección supera los 25 MB. Sube menos archivos a la vez.';
+          document.getElementById('msgSubida').className = 'msg msg--error';
+          document.getElementById('msgSubida').style.display = 'block';
+          return;
+        }
+
+        btnSubir.textContent = 'Subiendo...';
+        btnSubir.disabled = true;
+
+        try {
+          const archivosBase64 = await Promise.all(archivosSeleccionados.map(archivoABase64));
+          const resultado = await window.sanjuanAdminAPI.MultimediaAPI.subir(archivosBase64);
+          if (resultado.status === 'success') {
+            mostrarMsg(resultado.message || 'Archivos subidos correctamente.', 'ok');
+            archivosSeleccionados.length = 0;
+            cerrarModalSubida();
+            cargarImagenes();
+          } else {
+            document.getElementById('msgSubida').textContent = resultado.message || 'Error al subir archivos.';
+            document.getElementById('msgSubida').className = 'msg msg--error';
+            document.getElementById('msgSubida').style.display = 'block';
+          }
+        } catch (err) {
+          document.getElementById('msgSubida').textContent = err.message || 'Error de red al subir.';
+          document.getElementById('msgSubida').className = 'msg msg--error';
+          document.getElementById('msgSubida').style.display = 'block';
+        } finally {
+          btnSubir.textContent = 'Subir archivos seleccionados';
+          btnSubir.disabled = false;
+        }
+      });
+
+      document.getElementById('modalSubida').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('modalSubida')) cerrarModalSubida();
+      });
+
+      // Filtros y orden
+      document.getElementById('buscarImagenes').addEventListener('input', renderizarGaleria);
+      document.getElementById('filtroFormato').addEventListener('change', renderizarGaleria);
+      document.getElementById('ordenarImagenes').addEventListener('change', renderizarGaleria);
+
+      cargarImagenes();
+    });
+  </script>
+</body>
+</html>

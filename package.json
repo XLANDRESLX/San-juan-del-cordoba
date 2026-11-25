@@ -1,0 +1,14 @@
+{
+  "name": "san-juan-cordoba-web",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sitio institucional estático compatible con GitHub Pages y Google Apps Script",
+  "scripts": {
+    "build:css": "tailwindcss -i ./css/tailwind.input.css -o ./css/tailwind.generated.css --minify",
+    "watch:css": "tailwindcss -i ./css/tailwind.input.css -o ./css/tailwind.generated.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "4.3.5",
+    "@tailwindcss/cli": "4.3.5"
+  }
+}

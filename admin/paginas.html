@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Gestión de Páginas – Panel de Administración</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js" referrerpolicy="origin"></script>
+</head>
+<body class="admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="../assets/img/logo.png" alt="Logo IE San Juan del Córdoba" width="48">
+        <h1>Admin Sanjuan</h1>
+      </div>
+      <ul class="admin-nav">
+        <li><a href="../admin/dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="../admin/articulos.html"><span>📰</span> Artículos</a></li>
+        <li><a href="../admin/paginas.html" class="active"><span>📄</span> Páginas</a></li>
+        <li><a href="../admin/multimedia.html"><span>🖼️</span> Multimedia</a></li>
+        <li><a href="../admin/institucional.html"><span>🏫</span> Institucional</a></li>
+        <li><a href="../admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        <li><a href="../admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+      </ul>
+    </aside>
+
+    <div class="admin-content">
+      <header class="admin-header">
+        <div>
+          <h2>Gestión de Páginas Institucionales</h2>
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);">Crea y edita páginas como Quiénes Somos, Contacto, Aviso Legal, etc.</p>
+        </div>
+        <button class="btn-admin btn-admin--primario" onclick="abrirModalPagina()">+ Nueva página</button>
+      </header>
+
+      <div id="msgPaginas" class="msg" style="display:none;"></div>
+
+      <div class="tabla-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Slug (URL)</th>
+              <th>Estado</th>
+              <th style="width:180px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyPaginas">
+            <tr><td colspan="4" style="text-align:center;color:var(--admin-text-muted);padding:var(--space-xl);">Cargando páginas...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal crear/editar página -->
+  <div id="modalPagina" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:var(--space-lg);">
+    <div class="form-admin" style="max-width:700px;width:100%;">
+      <h2 id="modalTituloPagina">Nueva página</h2>
+      <form id="formPagina" novalidate>
+        <input type="hidden" id="paginaId">
+        <input type="hidden" id="paginaAccion" value="crear">
+
+        <div class="form__grupo">
+          <label>Título <span style="color:var(--admin-danger);">*</span></label>
+          <input type="text" id="pagTitulo" required maxlength="200">
+        </div>
+
+        <div class="form__grupo">
+          <label>Slug (URL) <span style="color:var(--admin-danger);">*</span></label>
+          <input type="text" id="pagSlug" required maxlength="150" placeholder="quienes-somos">
+        </div>
+
+        <div class="form__grupo">
+          <label>Estado</label>
+          <select id="pagEstado">
+            <option value="publicado">Publicado</option>
+            <option value="borrador">Borrador</option>
+          </select>
+        </div>
+
+        <div class="form__grupo">
+          <label>Título SEO</label>
+          <input type="text" id="pagSeoTitulo" placeholder="Título para motores de búsqueda">
+        </div>
+
+        <div class="form__grupo">
+          <label>Meta descripción SEO</label>
+          <textarea id="pagSeoDesc" rows="3" maxlength="300"></textarea>
+        </div>
+
+        <div class="form__grupo">
+          <label>Contenido (editor visual)</label>
+          <textarea id="pagContenido" rows="14" placeholder="Escribe el contenido de la página..."></textarea>
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);margin-top:var(--space-xs);">Editor visual TinyMCE. Puedes dar formato al texto, insertar imágenes, listas, tablas y enlaces.</p>
+        </div>
+
+        <div class="form-actions" style="justify-content:flex-end;">
+          <button type="button" class="btn-admin btn-admin--secundario" onclick="cerrarModalPagina()">Cancelar</button>
+          <button type="submit" class="btn-admin btn-admin--primario" id="btnGuardarPagina">Guardar página</button>
+        </div>
+      </form>
+      <div id="msgModalPagina" class="msg" style="margin-top:var(--space-md);display:none;"></div>
+    </div>
+  </div>
+
+  <script src="../js/app-config.js"></script>
+  <script src="../js/admin/auth.js?v=5.0.0"></script>
+  <script src="../js/admin/api.js?v=5.0.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.sanjuanAuth.requireAuth();
+
+      const tbody = document.getElementById('tbodyPaginas');
+      const msg = document.getElementById('msgPaginas');
+
+      function mostrarMsg(texto, tipo) {
+        msg.textContent = texto;
+        msg.className = `msg msg--${tipo}`;
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 5000);
+      }
+
+      async function cargarPaginas() {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--admin-text-muted);padding:var(--space-xl);">Cargando...</td></tr>';
+        try {
+          const resultado = await window.sanjuanAdminAPI.PaginasAPI.listar();
+          if (resultado.status === 'success') {
+            renderizarTabla(resultado.data);
+          } else {
+            mostrarMsg(resultado.message || 'Error al cargar páginas', 'error');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--admin-danger);">Error al cargar páginas.</td></tr>';
+          }
+        } catch (err) {
+          mostrarMsg('Error de red.', 'error');
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--admin-danger);">Error de red.</td></tr>';
+        }
+      }
+
+      function renderizarTabla(paginas) {
+        if (!paginas || paginas.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--admin-text-muted);padding:var(--space-xl);">No hay páginas creadas.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = paginas.map(p => `
+          <tr>
+            <td>${p.titulo || '(sin título)'}</td>
+            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);font-family:monospace;">/${p.slug || ''}.html</td>
+            <td><span class="estado-badge estado-${p.estado || 'borrador'}">${p.estado || 'borrador'}</span></td>
+            <td>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="editarPagina('${p.id}')" title="Editar">✏️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--peligro" onclick="eliminarPagina('${p.id}')" title="Eliminar">🗑️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="cambiarEstadoPagina('${p.id}', '${p.estado === 'publicado' ? 'borrador' : 'publicado'}')" title="Cambiar estado">${p.estado === 'publicado' ? 'Despublicar' : 'Publicar'}</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      window.abrirModalPagina = (id = null) => {
+        const modal = document.getElementById('modalPagina');
+        const form = document.getElementById('formPagina');
+        const titulo = document.getElementById('modalTituloPagina');
+        const accion = document.getElementById('paginaAccion');
+        const idInput = document.getElementById('paginaId');
+
+        form.reset();
+        if (tinymce.get('pagContenido')) {
+          tinymce.get('pagContenido').setContent('');
+        }
+        idInput.value = id || '';
+        accion.value = id ? 'editar' : 'crear';
+        titulo.textContent = id ? 'Editar página' : 'Nueva página';
+        document.getElementById('msgModalPagina').style.display = 'none';
+
+        if (id) cargarPaginaParaEditar(id);
+
+        modal.style.display = 'flex';
+      };
+
+      window.cerrarModalPagina = () => {
+        document.getElementById('modalPagina').style.display = 'none';
+      };
+
+      async function cargarPaginaParaEditar(id) {
+        try {
+          const resultado = await window.sanjuanAdminAPI.PaginasAPI.obtener(id);
+          if (resultado.status === 'success' && resultado.data) {
+            const p = resultado.data;
+            document.getElementById('pagTitulo').value = p.titulo || '';
+            document.getElementById('pagSlug').value = p.slug || '';
+            document.getElementById('pagEstado').value = p.estado || 'borrador';
+            document.getElementById('pagSeoTitulo').value = p.titulo_seo || '';
+            document.getElementById('pagSeoDesc').value = p.meta_descripcion || '';
+            document.getElementById('pagContenido').value = p.contenido_html || '';
+            if (tinymce.get('pagContenido')) {
+              tinymce.get('pagContenido').setContent(p.contenido_html || '');
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      window.editarPagina = (id) => abrirModalPagina(id);
+
+      window.cambiarEstadoPagina = async (id, nuevoEstado) => {
+        if (!confirm(`¿Estás seguro de ${nuevoEstado === 'publicado' ? 'publicar' : 'despublicar'} esta página?`)) return;
+        try {
+          const resultado = await window.sanjuanAdminAPI.PaginasAPI.cambiarEstado(id, nuevoEstado);
+          if (resultado.status === 'success') {
+            mostrarMsg(`Página ${nuevoEstado} correctamente.`, 'ok');
+            cargarPaginas();
+          } else {
+            mostrarMsg(resultado.message || 'Error.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red.', 'error');
+        }
+      };
+
+      window.eliminarPagina = async (id) => {
+        if (!confirm('¿Estás seguro de eliminar esta página?')) return;
+        try {
+          const resultado = await window.sanjuanAdminAPI.PaginasAPI.eliminar(id);
+          if (resultado.status === 'success') {
+            mostrarMsg('Página eliminada correctamente.', 'ok');
+            cargarPaginas();
+          } else {
+            mostrarMsg(resultado.message || 'Error al eliminar.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red.', 'error');
+        }
+      };
+
+      document.getElementById('formPagina').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnGuardarPagina');
+        btn.textContent = 'Guardando...';
+        btn.disabled = true;
+
+        const data = {
+          titulo: document.getElementById('pagTitulo').value,
+          slug: document.getElementById('pagSlug').value,
+          estado: document.getElementById('pagEstado').value,
+          titulo_seo: document.getElementById('pagSeoTitulo').value,
+          meta_descripcion: document.getElementById('pagSeoDesc').value,
+          contenido_html: tinymce.get('pagContenido') ? tinymce.get('pagContenido').getContent() : document.getElementById('pagContenido').value
+        };
+
+        const id = document.getElementById('paginaId').value;
+        const accion = document.getElementById('paginaAccion').value;
+
+        try {
+          let resultado;
+          if (accion === 'crear') {
+            resultado = await window.sanjuanAdminAPI.PaginasAPI.crear(data);
+          } else {
+            resultado = await window.sanjuanAdminAPI.PaginasAPI.actualizar(id, data);
+          }
+
+          const msgModal = document.getElementById('msgModalPagina');
+          if (resultado.status === 'success') {
+            msgModal.textContent = 'Página guardada correctamente.';
+            msgModal.className = 'msg msg--ok';
+            msgModal.style.display = 'block';
+            setTimeout(() => { cerrarModalPagina(); cargarPaginas(); }, 800);
+          } else {
+            msgModal.textContent = resultado.message || 'Error al guardar.';
+            msgModal.className = 'msg msg--error';
+            msgModal.style.display = 'block';
+          }
+        } catch (err) {
+          document.getElementById('msgModalPagina').textContent = 'Error de red.';
+          document.getElementById('msgModalPagina').className = 'msg msg--error';
+          document.getElementById('msgModalPagina').style.display = 'block';
+        } finally {
+          btn.textContent = 'Guardar página';
+          btn.disabled = false;
+        }
+      });
+
+      document.getElementById('modalPagina').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('modalPagina')) cerrarModalPagina();
+      });
+
+      cargarPaginas();
+
+      // Inicializar TinyMCE para el editor de contenido
+      tinymce.init({
+        selector: '#pagContenido',
+        license_key: 'gpl',
+        height: 400,
+        menubar: false,
+        toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist outdent indent | link image | table | removeformat',
+        plugins: 'lists link image table',
+        branding: false,
+        promote_icons: false,
+        image_uploadtab: false,
+        content_style: 'body { font-family: Open Sans, Arial, sans-serif; font-size: 16px; color: #21313f; line-height: 1.6; }'
+      });
+    });
+  </script>
+</body>
+</html>

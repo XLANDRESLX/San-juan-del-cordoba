@@ -1,0 +1,305 @@
+/* variables.css — Tokens de diseño institucional IE San Juan del Córdoba */
+/* ========================================================================== */
+
+:root {
+  /* ---------- Paleta institucional ---------- */
+  --color-primario: #14426b;      /* Azul institucional profundo */
+  --color-primario-hover: #0e3250;
+  --color-secundario: #e67e22;    /* Naranja institucional suave */
+  --color-secundario-hover: #d35400;
+  --color-fondo: #ffffff;
+  --color-fondo-suave: #f7f9fb;   /* Fondo alternado para secciones */
+  --color-texto: #21313f;         /* Texto principal (alto contraste) */
+  --color-texto-suave: #4a5a6a;   /* Texto secundario */
+  --color-gris: #8a97a5;          /* Texto auxiliar / placeholders */
+  --color-borde: #d8e0e7;         /* Bordes suaves */
+  --color-borde-fuerte: #b9c6cf;
+  --color-success: #2e7d32;
+  --color-error: #c62828;
+  --color-warning: #ef6c00;
+
+  /* ---------- Tipografía ---------- */
+  --font-titulo: 'Merriweather', Georgia, serif;
+  --font-cuerpo: 'Open Sans', Arial, sans-serif;
+  --font-mono: 'Courier New', monospace;
+
+  /* ---------- Escala tipográfica ---------- */
+  --fs-base: 1rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.25rem;
+  --fs-2xl: 1.5rem;
+  --fs-3xl: 1.875rem;
+  --fs-4xl: 2.25rem;
+  --fs-5xl: 3rem;
+
+  /* ---------- Espaciado ---------- */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* ---------- Medidas ---------- */
+  --max-width: 1200px;
+  --max-width-reading: 720px;
+  --header-height: 72px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
+
+  /* ---------- Sombras sutiles ---------- */
+  --shadow-sm: 0 1px 3px rgba(20, 66, 107, 0.08);
+  --shadow: 0 4px 12px rgba(20, 66, 107, 0.10);
+  --shadow-lg: 0 8px 24px rgba(20, 66, 107, 0.12);
+
+  /* ---------- Transiciones ---------- */
+  --transition-fast: 0.18s ease;
+  --transition: 0.28s ease;
+  --transition-slow: 0.4s ease;
+
+  /* ---------- Z-index ---------- */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 1000;
+}
+
+/* ---------- Reset y base ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-cuerpo);
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ---------- Botones base ---------- */
+.btn, button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  transition: var(--transition-fast);
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: var(--fs-md);
+  text-align: center;
+}
+
+.btn--primario {
+  background: var(--color-primario);
+  color: #fff;
+}
+
+.btn--primario:hover {
+  background: var(--color-primario-hover);
+  color: #fff;
+}
+
+.btn--secundario {
+  background: transparent;
+  color: var(--color-primario);
+  border: 2px solid var(--color-primario);
+}
+
+.btn--secundario:hover {
+  background: var(--color-primario);
+  color: #fff;
+}
+
+.btn--texto {
+  background: transparent;
+  color: var(--color-texto-suave);
+}
+
+.btn--texto:hover {
+  color: var(--color-primario);
+}
+
+.btn--sm {
+  padding: 6px 16px;
+  font-size: var(--fs-sm);
+}
+
+.btn--lg {
+  padding: 14px 32px;
+  font-size: var(--fs-lg);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--color-primario);
+  outline-offset: 2px;
+}
+
+/* ---------- Utilidades ---------- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.fw-600 { font-weight: 600; }
+.fw-700 { font-weight: 700; }
+
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-40 { margin-top: 40px; }
+.mb-40 { margin-bottom: 40px; }
+
+.alert {
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-md);
+  border: 1px solid transparent;
+}
+
+.alert--ok {
+  background: #e7f5ec;
+  color: var(--color-success);
+  border-color: #b9e3c7;
+}
+
+.alert--error {
+  background: #fdecea;
+  color: var(--color-error);
+  border-color: #f5c6c6;
+}
+
+.alert--info {
+  background: #e8f2fb;
+  color: var(--color-primario);
+  border-color: #bcd6ec;
+}
+
+/* ---------- Tarjetas base ---------- */
+.card {
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-borde-fuerte);
+}
+
+/* ---------- Imágenes ---------- */
+.img-placeholder {
+  background: var(--color-fondo-suave);
+  border: 1px dashed var(--color-borde);
+  border-radius: var(--radius);
+  color: var(--color-gris);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-sm);
+}
+
+.img-rounded {
+  border-radius: var(--radius-lg);
+}
+
+.img-circle {
+  border-radius: 50%;
+}
+
+/* ---------- Enlaces ---------- */
+.link {
+  color: var(--color-primario);
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.link:hover {
+  color: var(--color-primario-hover);
+  text-decoration: underline;
+}
+
+/* ---------- Estados de carga ---------- */
+.loader {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--color-borde);
+  border-top-color: var(--color-primario);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Focus visible global ---------- */
+*:focus-visible {
+  outline: 3px solid var(--color-primario);
+  outline-offset: 2px;
+}
+
+/* ---------- Skip link ---------- */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: var(--color-primario);
+  color: #fff;
+  padding: 8px 16px;
+  z-index: var(--z-modal);
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 0;
+}

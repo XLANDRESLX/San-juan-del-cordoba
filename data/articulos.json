@@ -1,0 +1,28 @@
+{
+  "articulos": [
+    {
+      "id": "1",
+      "titulo": "Estudiantes de 9° ganan primer lugar en Feria de Ciencias del Magdalena",
+      "slug": "feria-ciencias-magdalena",
+      "categoria": "noticias",
+      "etiquetas": "feria-ciencias, logros, estudiantes",
+      "autor": "Ana López",
+      "fecha_publicacion": "2026-05-15",
+      "imagen_url": "assets/img/articulos/feria-ciencias.jpg",
+      "resumen": "Un equipo de tres estudiantes de grado 9° de la IE San Juan del Córdoba se coronó campeón en la categoría de ciencias ambientales de la feria departamental.",
+      "estado": "publicado"
+    },
+    {
+      "id": "2",
+      "titulo": "Proceso de admisión 2027 – IE San Juan del Córdoba",
+      "slug": "admision-2027",
+      "categoria": "noticias",
+      "etiquetas": "admisión, inscripción, 2027",
+      "autor": "Carlos Méndez",
+      "fecha_publicacion": "2026-06-01",
+      "imagen_url": "assets/img/articulos/admision-2027.jpg",
+      "resumen": "Todo lo que necesitas saber sobre el proceso de admisión 2027 de la Institución Educativa San Juan del Córdoba en Ciénaga, Magdalena.",
+      "estado": "publicado"
+    }
+  ]
+}

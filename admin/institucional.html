@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Información Institucional – Panel de Administración</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/x-icon">
+</head>
+<body class="admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="../assets/img/logo.png" alt="Logo IE San Juan del Córdoba" width="48">
+        <h1>Admin Sanjuan</h1>
+      </div>
+      <ul class="admin-nav">
+        <li><a href="../admin/dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="../admin/articulos.html"><span>📰</span> Artículos</a></li>
+        <li><a href="../admin/paginas.html"><span>📄</span> Páginas</a></li>
+        <li><a href="../admin/multimedia.html"><span>🖼️</span> Multimedia</a></li>
+        <li><a href="../admin/institucional.html" class="active"><span>🏫</span> Institucional</a></li>
+        <li><a href="../admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        <li><a href="../admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+      </ul>
+    </aside>
+
+    <div class="admin-content">
+      <header class="admin-header">
+        <div>
+          <h2>Información Institucional</h2>
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);">Administra los datos generales de la institución que se muestran en la web pública.</p>
+        </div>
+        <button class="btn-admin btn-admin--primario" onclick="guardarInstitucional()">Guardar cambios</button>
+      </header>
+
+      <div id="msgInstitucional" class="msg" style="display:none;"></div>
+
+      <div class="form-admin">
+        <div class="form__grupo">
+          <label>Nombre institucional <span style="color:var(--admin-danger);">*</span></label>
+          <input type="text" id="instNombre" required maxlength="200" placeholder="Institución Educativa San Juan del Córdoba">
+        </div>
+
+        <div class="form__grupo">
+          <label>Descripción corta</label>
+          <textarea id="instDescripcion" rows="3" maxlength="500" placeholder="Educación de calidad, inclusiva y contextualizada..."></textarea>
+        </div>
+
+        <div class="form__grupo">
+          <label>Misión</label>
+          <textarea id="instMision" rows="4" maxlength="1000" placeholder="Describe la misión de la institución..."></textarea>
+        </div>
+
+        <div class="form__grupo">
+          <label>Visión</label>
+          <textarea id="instVision" rows="4" maxlength="1000" placeholder="Describe la visión de la institución..."></textarea>
+        </div>
+
+        <div class="form__grupo">
+          <label>Valores (uno por línea)</label>
+          <textarea id="instValores" rows="4" maxlength="500" placeholder="Respeto\nResponsabilidad\nSolidaridad..."></textarea>
+        </div>
+
+        <div style="display:flex;gap:var(--space-md);">
+          <div class="form__grupo" style="flex:1;">
+            <label>Dirección</label>
+            <input type="text" id="instDireccion" maxlength="200" placeholder="Calle, ciudad, departamento">
+          </div>
+          <div class="form__grupo" style="flex:1;">
+            <label>Teléfono</label>
+            <input type="tel" id="instTelefono" maxlength="50" placeholder="+57 ...">
+          </div>
+        </div>
+
+        <div class="form__grupo">
+          <label>Correo electrónico</label>
+          <input type="email" id="instEmail" maxlength="200" placeholder="contacto@ejemplo.edu.co">
+        </div>
+
+        <div class="form__grupo">
+          <label>Horarios de atención</label>
+          <input type="text" id="instHorarios" maxlength="200" placeholder="Lunes a Viernes, 7:00 a.m. – 4:00 p.m.">
+        </div>
+
+        <div style="display:flex;gap:var(--space-md);">
+          <div class="form__grupo" style="flex:1;">
+            <label>Código DANE</label>
+            <input type="text" id="instDane" maxlength="50" placeholder="147189001186">
+          </div>
+          <div class="form__grupo" style="flex:1;">
+            <label>Niveles educativos</label>
+            <input type="text" id="instNiveles" maxlength="200" placeholder="Preescolar, Básica Primaria, Básica Secundaria, Media">
+          </div>
+        </div>
+
+        <div class="form__grupo">
+          <label>Redes sociales (una por línea: nombre,url)</label>
+          <textarea id="instRedes" rows="4" maxlength="500" placeholder="Facebook,https://facebook.com/...\nInstagram,https://instagram.com/..."></textarea>
+        </div>
+
+        <div class="form__grupo">
+          <label>Mensaje de bienvenida (portada)</label>
+          <textarea id="instBienvenida" rows="3" maxlength="500" placeholder="Mensaje de bienvenida para la página principal..."></textarea>
+        </div>
+
+        <div class="form__grupo">
+          <label>Imagen principal de portada (URL)</label>
+          <input type="url" id="instImagenPortada" placeholder="https://ejemplo.com/portada.jpg">
+        </div>
+
+        <div class="form__grupo">
+          <label>URL del logo</label>
+          <input type="url" id="instLogoUrl" placeholder="https://ejemplo.com/logo.png">
+        </div>
+
+        <div class="form__grupo">
+          <label>URL del escudo</label>
+          <input type="url" id="instEscudoUrl" placeholder="https://ejemplo.com/escudo.png">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app-config.js"></script>
+  <script src="../js/admin/auth.js?v=5.0.0"></script>
+  <script src="../js/admin/api.js?v=5.0.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.sanjuanAuth.requireAuth();
+
+      const msg = document.getElementById('msgInstitucional');
+
+      function mostrarMsg(texto, tipo) {
+        msg.textContent = texto;
+        msg.className = `msg msg--${tipo}`;
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 5000);
+      }
+
+      async function cargarInstitucional() {
+        try {
+          const resultado = await window.sanjuanAdminAPI.InstitucionalAPI.obtener();
+          if (resultado.status === 'success' && resultado.data) {
+            const d = resultado.data;
+            document.getElementById('instNombre').value = d.nombre_institucional || '';
+            document.getElementById('instDescripcion').value = d.descripcion || '';
+            document.getElementById('instMision').value = d.mision || '';
+            document.getElementById('instVision').value = d.vision || '';
+            document.getElementById('instValores').value = d.valores || '';
+            document.getElementById('instDireccion').value = d.direccion || '';
+            document.getElementById('instTelefono').value = d.telefono || '';
+            document.getElementById('instEmail').value = d.email || '';
+            document.getElementById('instHorarios').value = d.horarios || '';
+            document.getElementById('instDane').value = d.codigo_dane || '';
+            document.getElementById('instNiveles').value = d.niveles || '';
+            document.getElementById('instRedes').value = d.redes_sociales || '';
+            document.getElementById('instBienvenida').value = d.mensaje_bienvenida || '';
+            document.getElementById('instImagenPortada').value = d.imagen_portada || '';
+            document.getElementById('instLogoUrl').value = d.logo_url || '';
+            document.getElementById('instEscudoUrl').value = d.escudo_url || '';
+          } else {
+            mostrarMsg(resultado.message || 'No se pudo cargar la información institucional.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red al cargar información institucional.', 'error');
+        }
+      }
+
+      window.guardarInstitucional = async () => {
+        const datos = {
+          nombre_institucional: document.getElementById('instNombre').value,
+          descripcion: document.getElementById('instDescripcion').value,
+          mision: document.getElementById('instMision').value,
+          vision: document.getElementById('instVision').value,
+          valores: document.getElementById('instValores').value,
+          direccion: document.getElementById('instDireccion').value,
+          telefono: document.getElementById('instTelefono').value,
+          email: document.getElementById('instEmail').value,
+          horarios: document.getElementById('instHorarios').value,
+          codigo_dane: document.getElementById('instDane').value,
+          niveles: document.getElementById('instNiveles').value,
+          redes_sociales: document.getElementById('instRedes').value,
+          mensaje_bienvenida: document.getElementById('instBienvenida').value,
+          imagen_portada: document.getElementById('instImagenPortada').value,
+          logo_url: document.getElementById('instLogoUrl').value,
+          escudo_url: document.getElementById('instEscudoUrl').value
+        };
+
+        try {
+          const resultado = await window.sanjuanAdminAPI.InstitucionalAPI.guardar(datos);
+          if (resultado.status === 'success') {
+            mostrarMsg('Información institucional guardada correctamente. Los cambios se reflejarán en la web pública.', 'ok');
+          } else {
+            mostrarMsg(resultado.message || 'Error al guardar.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red al guardar.', 'error');
+        }
+      };
+
+      cargarInstitucional();
+    });
+  </script>
+</body>
+</html>

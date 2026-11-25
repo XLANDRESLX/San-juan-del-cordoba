@@ -1,0 +1,261 @@
+/* pages.css — Estilos específicos por página */
+/* ========================================================================== */
+
+/* ---------- Quiénes Somos ---------- */
+.pagina-quienes {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-3xl) 0;
+}
+
+.pagina-quienes h1 {
+  font-family: var(--font-titulo);
+  font-size: var(--fs-4xl);
+  margin-bottom: var(--space-md);
+  color: var(--color-texto);
+}
+
+.pagina-quienes p.lead {
+  color: var(--color-texto-suave);
+  font-size: var(--fs-lg);
+  margin-bottom: var(--space-2xl);
+  max-width: var(--max-width-reading);
+}
+
+.mis-vision {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-3xl);
+}
+
+.mis-vision__card {
+  border: 1px solid var(--color-borde);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  background: var(--color-fondo-suave);
+  transition: var(--transition);
+}
+
+.mis-vision__card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+  background: var(--color-fondo);
+}
+
+.mis-vision__card h2 {
+  font-family: var(--font-titulo);
+  color: var(--color-primario);
+  margin-bottom: var(--space-md);
+  font-size: var(--fs-xl);
+}
+
+.mis-vision__card p,
+.mis-vision__card ul {
+  color: var(--color-texto-suave);
+  line-height: 1.7;
+}
+
+.mis-vision__card ul {
+  padding-left: var(--space-lg);
+}
+
+.mis-vision__card li {
+  margin-bottom: var(--space-sm);
+}
+
+.equipo {
+  margin-bottom: var(--space-3xl);
+}
+
+.equipo h2 {
+  font-family: var(--font-titulo);
+  margin-bottom: var(--space-xl);
+  color: var(--color-texto);
+  text-align: center;
+}
+
+.equipo__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+
+.datos-institucionales h2 {
+  font-family: var(--font-titulo);
+  margin-bottom: var(--space-lg);
+  color: var(--color-texto);
+}
+
+.datos-institucionales table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-fondo);
+}
+
+.datos-institucionales td {
+  border: 1px solid var(--color-borde);
+  padding: var(--space-md);
+  font-size: var(--fs-sm);
+}
+
+.datos-institucionales td:first-child {
+  font-weight: 600;
+  color: var(--color-texto-suave);
+  width: 30%;
+  background: var(--color-fondo-suave);
+}
+
+/* ---------- Contacto ---------- */
+.pagina-contacto {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-3xl) 0;
+}
+
+.pagina-contacto h1 {
+  font-family: var(--font-titulo);
+  font-size: var(--fs-4xl);
+  margin-bottom: var(--space-md);
+  color: var(--color-texto);
+}
+
+.pagina-contacto p.lead {
+  color: var(--color-texto-suave);
+  font-size: var(--fs-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+/* ---------- Aviso Legal / Privacidad ---------- */
+.pagina-legal {
+  max-width: var(--max-width-reading);
+  margin: 0 auto;
+  padding: var(--space-3xl) 0;
+}
+
+.pagina-legal h1 {
+  font-family: var(--font-titulo);
+  font-size: var(--fs-4xl);
+  margin-bottom: var(--space-xl);
+  color: var(--color-texto);
+  text-align: center;
+}
+
+.pagina-legal h2 {
+  font-family: var(--font-titulo);
+  font-size: var(--fs-2xl);
+  margin: var(--space-xl) 0 var(--space-md);
+  color: var(--color-primario);
+}
+
+.pagina-legal p {
+  color: var(--color-texto-suave);
+  line-height: 1.8;
+  margin-bottom: var(--space-lg);
+  text-align: justify;
+}
+
+.pagina-legal ul {
+  padding-left: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+
+.pagina-legal li {
+  color: var(--color-texto-suave);
+  line-height: 1.7;
+  margin-bottom: var(--space-sm);
+}
+
+/* ---------- 404 ---------- */
+.pagina-404 {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-3xl) 0;
+  text-align: center;
+}
+
+/* ---------- Categorías ---------- */
+.pagina-categoria {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-3xl) 0;
+}
+
+.pagina-categoria h1 {
+  font-family: var(--font-titulo);
+  font-size: var(--fs-4xl);
+  margin-bottom: var(--space-sm);
+  color: var(--color-texto);
+}
+
+.pagina-categoria p.pagina__descripcion {
+  color: var(--color-texto-suave);
+  font-size: var(--fs-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+/* ---------- Artículo individual ---------- */
+.pagina-articulo {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-3xl) 0;
+}
+
+.pagina-articulo article {
+  max-width: var(--max-width-reading);
+  margin: 0 auto;
+}
+
+.comentarios {
+  margin-top: var(--space-3xl);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-borde);
+}
+
+.comentarios h2 {
+  font-family: var(--font-titulo);
+  margin-bottom: var(--space-lg);
+  color: var(--color-texto);
+}
+
+.comentario {
+  padding: var(--space-lg);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radius-lg);
+  background: var(--color-fondo-suave);
+  margin-bottom: var(--space-lg);
+}
+
+.comentario strong {
+  display: block;
+  font-size: var(--fs-md);
+  color: var(--color-texto);
+  margin-bottom: var(--space-xs);
+}
+
+.comentario time {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--color-gris);
+  margin-bottom: var(--space-md);
+}
+
+.comentario p {
+  color: var(--color-texto-suave);
+  line-height: 1.6;
+}
+
+.comentarios__vacio {
+  color: var(--color-gris);
+  font-style: italic;
+  padding: var(--space-xl);
+  text-align: center;
+}
+
+/* ---------- Tarjetas en inicio ---------- */
+.inicio__seccion {
+  margin-bottom: var(--space-3xl);
+}

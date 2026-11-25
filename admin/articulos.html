@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Gestión de Artículos – Panel de Administración</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js" referrerpolicy="origin"></script>
+</head>
+<body class="admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="../assets/img/logo.png" alt="Logo IE San Juan del Córdoba" width="48">
+        <h1>Admin Sanjuan</h1>
+      </div>
+      <ul class="admin-nav">
+        <li><a href="../admin/dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="../admin/articulos.html" class="active"><span>📰</span> Artículos</a></li>
+        <li><a href="../admin/paginas.html"><span>📄</span> Páginas</a></li>
+        <li><a href="../admin/multimedia.html"><span>🖼️</span> Multimedia</a></li>
+        <li><a href="../admin/institucional.html"><span>🏫</span> Institucional</a></li>
+        <li><a href="../admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        <li><a href="../admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+      </ul>
+    </aside>
+
+    <div class="admin-content">
+      <header class="admin-header">
+        <div>
+          <h2>Gestión de Artículos</h2>
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);">Crea, edita y publica artículos del sitio web.</p>
+        </div>
+        <button class="btn-admin btn-admin--primario" onclick="abrirModalArticulo()">+ Nuevo artículo</button>
+      </header>
+
+      <div id="msgArticulos" class="msg" style="display:none;"></div>
+
+      <!-- Filtros -->
+      <div style="background:var(--admin-card);border:1px solid var(--admin-border);border-radius:var(--radius-lg);padding:var(--space-lg);margin-bottom:var(--space-xl);">
+        <div style="display:flex;gap:var(--space-md);flex-wrap:wrap;align-items:end;">
+          <div class="form__grupo" style="margin-bottom:0;">
+            <label style="display:block;margin-bottom:var(--space-sm);font-size:var(--fs-sm);font-weight:600;">Buscar</label>
+            <input type="text" id="filtroBuscar" placeholder="Título, resumen o autor" style="width:280px;padding:8px 12px;border:1px solid var(--admin-border);border-radius:var(--radius);font-family:inherit;">
+          </div>
+          <div class="form__grupo" style="margin-bottom:0;">
+            <label style="display:block;margin-bottom:var(--space-sm);font-size:var(--fs-sm);font-weight:600;">Categoría</label>
+            <select id="filtroCategoria" style="padding:8px 12px;border:1px solid var(--admin-border);border-radius:var(--radius);font-family:inherit;">
+              <option value="">Todas</option>
+              <option value="noticias">Noticias</option>
+              <option value="actividades">Actividades</option>
+              <option value="educativo">Educativo</option>
+            </select>
+          </div>
+          <div class="form__grupo" style="margin-bottom:0;">
+            <label style="display:block;margin-bottom:var(--space-sm);font-size:var(--fs-sm);font-weight:600;">Estado</label>
+            <select id="filtroEstado" style="padding:8px 12px;border:1px solid var(--admin-border);border-radius:var(--radius);font-family:inherit;">
+              <option value="">Todos</option>
+              <option value="publicado">Publicado</option>
+              <option value="borrador">Borrador</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de artículos -->
+      <div class="tabla-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Imagen</th>
+              <th>Título</th>
+              <th>Categoría</th>
+              <th>Autor</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th style="width:160px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyArticulos">
+            <tr><td colspan="7" style="text-align:center;color:var(--admin-text-muted);padding:var(--space-xl);">Cargando artículos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="paginacion-admin" id="paginacionArticulos"></div>
+    </div>
+  </div>
+
+  <!-- Modal crear/editar artículo -->
+  <div id="modalArticulo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:var(--space-lg);">
+    <div class="form-admin" style="max-width:900px;width:100%;max-height:90vh;overflow-y:auto;">
+      <h2 id="modalTitulo">Nuevo artículo</h2>
+      <form id="formArticulo" novalidate>
+        <input type="hidden" id="articuloId">
+        <input type="hidden" id="articuloAccion" value="crear">
+
+        <div class="form__grupo">
+          <label>Título <span style="color:var(--admin-danger);">*</span></label>
+          <input type="text" id="artTitulo" required maxlength="200">
+        </div>
+
+        <div class="form__grupo">
+          <label>Slug (URL amigable) <span style="color:var(--admin-danger);">*</span></label>
+          <input type="text" id="artSlug" required maxlength="150" placeholder="ejemplo-articulo">
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);margin-top:var(--space-xs);">Solo letras, números y guiones.</p>
+        </div>
+
+        <div style="display:flex;gap:var(--space-md);">
+          <div class="form__grupo" style="flex:1;">
+            <label>Categoría</label>
+            <select id="artCategoria" required>
+              <option value="noticias">Noticias</option>
+              <option value="actividades">Actividades</option>
+              <option value="educativo">Educativo</option>
+            </select>
+          </div>
+          <div class="form__grupo" style="flex:1;">
+            <label>Estado</label>
+            <select id="artEstado">
+              <option value="publicado">Publicado</option>
+              <option value="borrador">Borrador</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form__grupo">
+          <label>Autor</label>
+          <input type="text" id="artAutor" placeholder="Nombre del autor">
+        </div>
+
+        <div class="form__grupo">
+          <label>Fecha de publicación</label>
+          <input type="date" id="artFecha">
+        </div>
+
+        <div class="form__grupo">
+          <label>Imagen de portada (URL)</label>
+          <input type="url" id="artImagen" placeholder="https://ejemplo.com/imagen.jpg">
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);margin-top:var(--space-xs);">URL de la imagen desde la biblioteca multimedia.</p>
+        </div>
+
+        <div class="form__grupo">
+          <label>Resumen</label>
+          <textarea id="artResumen" rows="3" maxlength="500"></textarea>
+        </div>
+
+        <div class="form__grupo">
+          <label>Etiquetas (separadas por coma)</label>
+          <input type="text" id="artEtiquetas" placeholder="etiqueta1, etiqueta2, etiqueta3">
+        </div>
+
+        <div class="form__grupo">
+          <label>Título SEO</label>
+          <input type="text" id="artSeoTitulo" placeholder="Título para motores de búsqueda">
+        </div>
+
+        <div class="form__grupo">
+          <label>Meta descripción SEO</label>
+          <textarea id="artSeoDesc" rows="3" maxlength="300"></textarea>
+        </div>
+
+        <div class="form__grupo">
+          <label>Contenido (editor visual)</label>
+          <textarea id="artContenido" rows="12" placeholder="Escribe el contenido del artículo..."></textarea>
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);margin-top:var(--space-xs);">Editor visual TinyMCE. Puedes dar formato al texto, insertar imágenes, listas, tablas y enlaces.</p>
+        </div>
+
+        <div class="form-actions" style="justify-content:flex-end;">
+          <button type="button" class="btn-admin btn-admin--secundario" onclick="cerrarModalArticulo()">Cancelar</button>
+          <button type="submit" class="btn-admin btn-admin--primario" id="btnGuardarArticulo">Guardar artículo</button>
+        </div>
+      </form>
+      <div id="msgModalArticulo" class="msg" style="margin-top:var(--space-md);display:none;"></div>
+    </div>
+  </div>
+
+  <script src="../js/app-config.js"></script>
+  <script src="../js/admin/auth.js?v=5.0.0"></script>
+  <script src="../js/admin/api.js?v=5.0.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.sanjuanAuth.requireAuth();
+
+      let paginaActual = 1;
+      let filtroCategoria = '';
+      let filtroEstado = '';
+      let filtroBuscar = '';
+
+      const tbody = document.getElementById('tbodyArticulos');
+      const paginacion = document.getElementById('paginacionArticulos');
+      const msg = document.getElementById('msgArticulos');
+
+      function mostrarMsg(texto, tipo) {
+        msg.textContent = texto;
+        msg.className = `msg msg--${tipo}`;
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 5000);
+      }
+
+      async function cargarArticulos(page = 1) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--admin-text-muted);padding:var(--space-xl);">Cargando...</td></tr>';
+
+        try {
+          const resultado = await window.sanjuanAdminAPI.ArticulosAPI.listar({
+            pagina: page,
+            categoria: filtroCategoria,
+            estado: filtroEstado,
+            buscar: filtroBuscar
+          });
+
+          if (resultado.status === 'success') {
+            renderizarTabla(resultado.data, resultado.total, resultado.page, resultado.perPage);
+          } else {
+            mostrarMsg(resultado.message || 'Error al cargar artículos', 'error');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--admin-danger);">Error al cargar artículos.</td></tr>';
+          }
+        } catch (err) {
+          mostrarMsg('Error de red al cargar artículos.', 'error');
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--admin-danger);">Error de red.</td></tr>';
+        }
+      }
+
+      function renderizarTabla(articulos, total, page, perPage) {
+        if (!articulos || articulos.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--admin-text-muted);padding:var(--space-xl);">No se encontraron artículos.</td></tr>';
+          paginacion.innerHTML = '';
+          return;
+        }
+
+        tbody.innerHTML = articulos.map(a => `
+          <tr>
+            <td>
+              ${a.imagen_url ? `<img src="${a.imagen_url}" alt="thumb" style="width:40px;height:40px;border-radius:var(--radius);object-fit:cover;">` : '<span style="color:var(--admin-text-muted);font-size:var(--fs-xs);">Sin imagen</span>'}
+            </td>
+            <td>${a.titulo || '(sin título)'}</td>
+            <td><span style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${a.categoria || '-'}</span></td>
+            <td>${a.autor || '-'}</td>
+            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${a.fecha_publicacion || '-'}</td>
+            <td><span class="estado-badge estado-${a.estado || 'borrador'}">${a.estado || 'borrador'}</span></td>
+            <td>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="editarArticulo('${a.id}')" title="Editar">✏️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--peligro" onclick="eliminarArticulo('${a.id}')" title="Eliminar">🗑️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="cambiarEstadoArticulo('${a.id}', '${a.estado === 'publicado' ? 'borrador' : 'publicado'}')" title="Cambiar estado">${a.estado === 'publicado' ? 'Despublicar' : 'Publicar'}</button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Paginación
+        const totalPages = Math.ceil(total / perPage);
+        let html = '';
+        if (page > 1) html += `<button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="cambiarPagina(${page - 1})">←</button>`;
+        for (let i = 1; i <= totalPages; i++) {
+          html += `<button class="btn-admin btn-admin--sm ${i === page ? 'btn-admin--primario' : 'btn-admin--secundario'}" onclick="cambiarPagina(${i})">${i}</button>`;
+        }
+        if (page < totalPages) html += `<button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="cambiarPagina(${page + 1})">→</button>`;
+        paginacion.innerHTML = html;
+      }
+
+      // Filtros
+      document.getElementById('filtroBuscar').addEventListener('input', (e) => {
+        filtroBuscar = e.target.value;
+        paginaActual = 1;
+        cargarArticulos(paginaActual);
+      });
+      document.getElementById('filtroCategoria').addEventListener('change', (e) => {
+        filtroCategoria = e.target.value;
+        paginaActual = 1;
+        cargarArticulos(paginaActual);
+      });
+      document.getElementById('filtroEstado').addEventListener('change', (e) => {
+        filtroEstado = e.target.value;
+        paginaActual = 1;
+        cargarArticulos(paginaActual);
+      });
+
+      window.cambiarPagina = (page) => {
+        paginaActual = page;
+        cargarArticulos(paginaActual);
+      };
+
+      window.abrirModalArticulo = (id = null) => {
+        const modal = document.getElementById('modalArticulo');
+        const form = document.getElementById('formArticulo');
+        const titulo = document.getElementById('modalTitulo');
+        const accion = document.getElementById('articuloAccion');
+        const idInput = document.getElementById('articuloId');
+
+        form.reset();
+        if (tinymce.get('artContenido')) {
+          tinymce.get('artContenido').setContent('');
+        }
+        idInput.value = id || '';
+        accion.value = id ? 'editar' : 'crear';
+        titulo.textContent = id ? 'Editar artículo' : 'Nuevo artículo';
+        document.getElementById('msgModalArticulo').style.display = 'none';
+
+        if (id) {
+          cargarArticuloParaEditar(id);
+        }
+
+        modal.style.display = 'flex';
+      };
+
+      window.cerrarModalArticulo = () => {
+        document.getElementById('modalArticulo').style.display = 'none';
+      };
+
+      async function cargarArticuloParaEditar(id) {
+        try {
+          const resultado = await window.sanjuanAdminAPI.ArticulosAPI.obtener(id);
+          if (resultado.status === 'success' && resultado.data) {
+            const a = resultado.data;
+            document.getElementById('artTitulo').value = a.titulo || '';
+            document.getElementById('artSlug').value = a.slug || '';
+            document.getElementById('artCategoria').value = a.categoria || 'noticias';
+            document.getElementById('artEstado').value = a.estado || 'borrador';
+            document.getElementById('artAutor').value = a.autor || '';
+            document.getElementById('artFecha').value = a.fecha_publicacion || '';
+            document.getElementById('artImagen').value = a.imagen_url || '';
+            document.getElementById('artResumen').value = a.resumen || '';
+            document.getElementById('artEtiquetas').value = a.etiquetas || '';
+            document.getElementById('artSeoTitulo').value = a.titulo_seo || '';
+            document.getElementById('artSeoDesc').value = a.meta_descripcion || '';
+            document.getElementById('artContenido').value = a.contenido_html || '';
+            if (tinymce.get('artContenido')) {
+              tinymce.get('artContenido').setContent(a.contenido_html || '');
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      window.editarArticulo = (id) => abrirModalArticulo(id);
+
+      window.cambiarEstadoArticulo = async (id, nuevoEstado) => {
+        if (!confirm(`¿Estás seguro de ${nuevoEstado === 'publicado' ? 'publicar' : 'despublicar'} este artículo?`)) return;
+        try {
+          const resultado = await window.sanjuanAdminAPI.ArticulosAPI.cambiarEstado(id, nuevoEstado);
+          if (resultado.status === 'success') {
+            mostrarMsg(`Artículo ${nuevoEstado} correctamente.`, 'ok');
+            cargarArticulos(paginaActual);
+          } else {
+            mostrarMsg(resultado.message || 'Error al cambiar estado.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red.', 'error');
+        }
+      };
+
+      window.eliminarArticulo = async (id) => {
+        if (!confirm('¿Estás seguro de eliminar este artículo? Esta acción no se puede deshacer.')) return;
+        try {
+          const resultado = await window.sanjuanAdminAPI.ArticulosAPI.eliminar(id);
+          if (resultado.status === 'success') {
+            mostrarMsg('Artículo eliminado correctamente.', 'ok');
+            cargarArticulos(paginaActual);
+          } else {
+            mostrarMsg(resultado.message || 'Error al eliminar.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red.', 'error');
+        }
+      };
+
+      // Guardar artículo
+      document.getElementById('formArticulo').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnGuardarArticulo');
+        btn.textContent = 'Guardando...';
+        btn.disabled = true;
+
+        const data = {
+          titulo: document.getElementById('artTitulo').value,
+          slug: document.getElementById('artSlug').value,
+          categoria: document.getElementById('artCategoria').value,
+          estado: document.getElementById('artEstado').value,
+          autor: document.getElementById('artAutor').value,
+          fecha_publicacion: document.getElementById('artFecha').value,
+          imagen_url: document.getElementById('artImagen').value,
+          resumen: document.getElementById('artResumen').value,
+          etiquetas: document.getElementById('artEtiquetas').value,
+          titulo_seo: document.getElementById('artSeoTitulo').value,
+          meta_descripcion: document.getElementById('artSeoDesc').value,
+          contenido_html: tinymce.get('artContenido') ? tinymce.get('artContenido').getContent() : document.getElementById('artContenido').value
+        };
+
+        const id = document.getElementById('articuloId').value;
+        const accion = document.getElementById('articuloAccion').value;
+
+        try {
+          let resultado;
+          if (accion === 'crear') {
+            resultado = await window.sanjuanAdminAPI.ArticulosAPI.crear(data);
+          } else {
+            resultado = await window.sanjuanAdminAPI.ArticulosAPI.actualizar(id, data);
+          }
+
+          const msgModal = document.getElementById('msgModalArticulo');
+          if (resultado.status === 'success') {
+            msgModal.textContent = 'Artículo guardado correctamente.';
+            msgModal.className = 'msg msg--ok';
+            msgModal.style.display = 'block';
+            setTimeout(() => {
+              cerrarModalArticulo();
+              cargarArticulos(paginaActual);
+            }, 800);
+          } else {
+            msgModal.textContent = resultado.message || 'Error al guardar el artículo.';
+            msgModal.className = 'msg msg--error';
+            msgModal.style.display = 'block';
+          }
+        } catch (err) {
+          document.getElementById('msgModalArticulo').textContent = 'Error de red.';
+          document.getElementById('msgModalArticulo').className = 'msg msg--error';
+          document.getElementById('msgModalArticulo').style.display = 'block';
+        } finally {
+          btn.textContent = 'Guardar artículo';
+          btn.disabled = false;
+        }
+      });
+
+      // Cerrar modal al hacer clic fuera
+      document.getElementById('modalArticulo').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('modalArticulo')) cerrarModalArticulo();
+      });
+
+      // Carga inicial
+      cargarArticulos(paginaActual);
+
+      // Inicializar TinyMCE para el editor de contenido
+      tinymce.init({
+        selector: '#artContenido',
+        license_key: 'gpl',
+        height: 400,
+        menubar: false,
+        toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist outdent indent | link image | table | removeformat',
+        plugins: 'lists link image table',
+        branding: false,
+        promote_icons: false,
+        image_uploadtab: false,
+        content_style: 'body { font-family: Open Sans, Arial, sans-serif; font-size: 16px; color: #21313f; line-height: 1.6; }'
+      });
+    });
+  </script>
+</body>
+</html>

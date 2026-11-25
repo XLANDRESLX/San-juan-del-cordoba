@@ -1,0 +1,148 @@
+/* responsive.css — Estrategia Mobile First */
+/* ========================================================================== */
+
+/* ---------- Tablet: 768px+ ---------- */
+@media (min-width: 768px) {
+  .container { max-width: 768px; }
+
+  /* Navegación desktop */
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .nav__toggle { display: none; }
+  .nav--open .nav__list { position: static; box-shadow: none; border: none; padding: 0; flex-direction: row; }
+
+  /* Submenús en desktop */
+  .nav__sublist {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+
+  .footer__grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Grid de artículos */
+  .grid-articulos { grid-template-columns: repeat(2, 1fr); }
+
+  /* Misión / Visión / Valores */
+  .mis-vision { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+  /* Equipo */
+  .equipo__grid { grid-template-columns: repeat(3, 1fr); }
+
+  /* Contacto */
+  .contacto__grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+
+  /* Galería */
+  .galeria { grid-template-columns: repeat(3, 1fr); }
+
+  /* Hero */
+  .hero h1 { font-size: var(--fs-5xl); }
+
+  /* Formularios lado a lado */
+  .newsletter__form {
+    flex-direction: row;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .newsletter__form button {
+    width: auto;
+    flex-shrink: 0;
+  }
+}
+
+/* ---------- Desktop: 1024px+ ---------- */
+@media (min-width: 1024px) {
+  .container { max-width: var(--max-width); }
+
+  .grid-articulos { grid-template-columns: repeat(3, 1fr); }
+  .equipo__grid { grid-template-columns: repeat(4, 1fr); }
+  .galeria { grid-template-columns: repeat(4, 1fr); }
+
+  .footer__grid { grid-template-columns: repeat(4, 1fr); }
+
+  .hero { padding: 80px 0 60px; }
+
+  .mis-vision__card { padding: var(--space-2xl); }
+
+  .contacto__mapa iframe { height: 320px; }
+
+  .articulo__imagen-destacada { height: 480px; }
+}
+
+/* ---------- Pantallas grandes: 1440px+ ---------- */
+@media (min-width: 1440px) {
+  .container { max-width: 1320px; }
+
+  .hero h1 { font-size: clamp(2.5rem, 4vw, 4rem); }
+
+  .card-articulo__imagen { height: 240px; }
+
+  .galeria__imagen { height: 260px; }
+}
+
+/* ---------- Pantallas de alta resolución (retina) ---------- */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .header__logo img,
+  .card-articulo__imagen,
+  .galeria__imagen,
+  .articulo__imagen-destacada {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* ---------- Móvil pequeño: hasta 480px ---------- */
+@media (max-width: 480px) {
+  :root {
+    --header-height: 64px;
+  }
+
+  .container { padding: 0 16px; }
+
+  .hero { padding: 40px 0 28px; margin: var(--space-lg) 0; }
+  .hero h1 { font-size: var(--fs-3xl); }
+  .hero p.hero__lead { font-size: var(--fs-md); }
+
+  .card-articulo__imagen { height: 180px; }
+
+  .section-header h2 { font-size: var(--fs-2xl); }
+
+  .formulario { padding: var(--space-lg); }
+
+  .footer__grid { gap: var(--space-xl); }
+
+  .pagina-quienes h1,
+  .pagina-contacto h1,
+  .pagina-legal h1,
+  .pagina-categoria h1,
+  .pagina-404 h1 {
+    font-size: var(--fs-3xl);
+  }
+
+  .articulo__titulo { font-size: var(--fs-2xl); }
+  .articulo__imagen-destacada { height: 300px; }
+
+  .equipo__grid { grid-template-columns: 1fr; }
+  .mis-vision { grid-template-columns: 1fr; }
+}
+
+/* ---------- Evitar desbordamiento horizontal ---------- */
+html, body {
+  overflow-x: hidden;
+}
+
+/* ---------- Imágenes responsivas ---------- */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------- Tablas adaptables ---------- */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

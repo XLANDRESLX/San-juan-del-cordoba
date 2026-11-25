@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-institucional: #14426b;
+  --color-institucional-oscuro: #0e3250;
+  --color-acento: #e67e22;
+  --font-sans: "Open Sans", Inter, system-ui, sans-serif;
+  --font-display: "Merriweather", Georgia, serif;
+}
+
+@source "../*.html";
+@source "../admin/*.html";
+@source "../categorias/*.html";
+@source "../js/**/*.js";

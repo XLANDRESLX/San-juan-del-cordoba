@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dashboard – Panel de Administración</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/x-icon">
+</head>
+<body class="admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="../assets/img/logo.png" alt="Logo IE San Juan del Córdoba" width="48">
+        <h1>Admin Sanjuan</h1>
+      </div>
+      <ul class="admin-nav">
+        <li><a href="../admin/dashboard.html" class="active"><span>📊</span> Dashboard</a></li>
+        <li><a href="../admin/articulos.html"><span>📰</span> Artículos</a></li>
+        <li><a href="../admin/paginas.html"><span>📄</span> Páginas</a></li>
+        <li><a href="../admin/multimedia.html"><span>🖼️</span> Multimedia</a></li>
+        <li><a href="../admin/institucional.html"><span>🏫</span> Institucional</a></li>
+        <li><a href="../admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        <li><a href="../admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+      </ul>
+    </aside>
+
+    <div class="admin-content">
+      <header class="admin-header">
+        <div>
+          <h2>Panel de Control</h2>
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);">Resumen de la gestión de contenidos</p>
+        </div>
+        <div class="admin-user">
+          <div class="admin-user-info">
+            <span class="admin-user-name" id="usuarioNombre">Administrador</span>
+            <span class="admin-user-role">Administrador</span>
+          </div>
+          <button class="btn-logout" onclick="window.sanjuanAuth.logout()">Cerrar sesión</button>
+        </div>
+      </header>
+
+      <div id="dashboardMsg" class="msg" style="display:none;"></div>
+
+      <!-- Tarjetas resumen -->
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <h3>Artículos publicados</h3>
+          <div class="valor" id="statPublicados">-</div>
+          <div class="subtitulo">Estado: publicado</div>
+        </div>
+        <div class="dashboard-card">
+          <h3>Borradores</h3>
+          <div class="valor" id="statBorradores">-</div>
+          <div class="subtitulo">Estado: borrador</div>
+        </div>
+        <div class="dashboard-card">
+          <h3>Mensajes de contacto</h3>
+          <div class="valor" id="statContacto">-</div>
+          <div class="subtitulo">Sin leer</div>
+        </div>
+        <div class="dashboard-card">
+          <h3>Comentarios pendientes</h3>
+          <div class="valor" id="statComentarios">-</div>
+          <div class="subtitulo">Por moderar</div>
+        </div>
+        <div class="dashboard-card">
+          <h3>Suscriptores newsletter</h3>
+          <div class="valor" id="statNewsletter">-</div>
+          <div class="subtitulo">Activos</div>
+        </div>
+        <div class="dashboard-card">
+          <h3>Páginas institucionales</h3>
+          <div class="valor" id="statPaginas">-</div>
+          <div class="subtitulo">Publicadas</div>
+        </div>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div style="background:var(--admin-card);border:1px solid var(--admin-border);border-radius:var(--radius-lg);padding:var(--space-lg);">
+        <h3 style="font-family:var(--font-titulo);margin-bottom:var(--space-lg);color:var(--admin-text);">Actividad reciente</h3>
+        <div id="actividadReciente">
+          <p style="color:var(--admin-text-muted);font-style:italic;">Cargando actividad...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app-config.js"></script>
+  <script src="../js/admin/auth.js?v=5.0.0"></script>
+  <script src="../js/admin/api.js?v=5.0.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Proteger ruta
+      window.sanjuanAuth.requireAuth();
+
+      const nombreEl = document.getElementById('usuarioNombre');
+      const user = window.sanjuanAuth.getCurrentUser();
+      if (nombreEl && user) {
+        nombreEl.textContent = user.nombre || 'Administrador';
+      }
+
+      async function cargarEstadisticas() {
+        try {
+          const [articulos, contacto, comentarios, newsletter, paginas] = await Promise.allSettled([
+            window.sanjuanAdminAPI.ArticulosAPI.listar({ estado: 'publicado' }),
+            window.sanjuanAdminAPI.MensajesAPI.listarContacto(),
+            window.sanjuanAdminAPI.MensajesAPI.listarComentarios(),
+            window.sanjuanAdminAPI.MensajesAPI.listarNewsletter(),
+            window.sanjuanAdminAPI.PaginasAPI.listar()
+          ]);
+
+          const parseCount = (result) => {
+            if (result.status === 'fulfilled' && result.value.status === 'success' && Array.isArray(result.value.data)) {
+              return result.value.data.length;
+            }
+            return 0;
+          };
+
+          document.getElementById('statPublicados').textContent = parseCount(articulos);
+          document.getElementById('statBorradores').textContent = '-'; // Se calcula por filtro
+          document.getElementById('statContacto').textContent = parseCount(contacto);
+          document.getElementById('statComentarios').textContent = parseCount(comentarios);
+          document.getElementById('statNewsletter').textContent = parseCount(newsletter);
+          document.getElementById('statPaginas').textContent = parseCount(paginas);
+
+          // Borradores: listar todos y contar
+          const allArticulos = await window.sanjuanAdminAPI.ArticulosAPI.listar();
+          if (allArticulos.status === 'success' && Array.isArray(allArticulos.data)) {
+            const borradores = allArticulos.data.filter(a => a.estado === 'borrador').length;
+            document.getElementById('statBorradores').textContent = borradores;
+          }
+
+        } catch (err) {
+          console.error('Error cargando estadísticas:', err);
+        }
+      }
+
+      async function cargarActividad() {
+        try {
+          const comentarios = await window.sanjuanAdminAPI.MensajesAPI.listarComentarios();
+          const contacto = await window.sanjuanAdminAPI.MensajesAPI.listarContacto();
+
+          const actividad = document.getElementById('actividadReciente');
+          let items = [];
+
+          if (comentarios.status === 'success' && Array.isArray(comentarios.data)) {
+            comentarios.data.slice(0, 5).forEach(c => {
+              items.push(`<div style="padding:var(--space-sm) 0;border-bottom:1px solid var(--admin-border);font-size:var(--fs-sm);">
+                <strong>${c.nombre || 'Anónimo'}</strong> comentó en un artículo <span style="color:var(--admin-text-muted);">${c.fecha || ''}</span>
+              </div>`);
+            });
+          }
+
+          if (contacto.status === 'success' && Array.isArray(contacto.data)) {
+            contacto.data.slice(0, 3).forEach(c => {
+              items.push(`<div style="padding:var(--space-sm) 0;border-bottom:1px solid var(--admin-border);font-size:var(--fs-sm);">
+                <strong>${c.nombre || 'Sin nombre'}</strong> envió un mensaje de contacto <span style="color:var(--admin-text-muted);">${c.fecha || ''}</span>
+              </div>`);
+            });
+          }
+
+          if (items.length === 0) {
+            actividad.innerHTML = '<p style="color:var(--admin-text-muted);font-style:italic;">Sin actividad reciente.</p>';
+          } else {
+            actividad.innerHTML = items.join('');
+          }
+        } catch (err) {
+          console.error('Error cargando actividad:', err);
+          document.getElementById('actividadReciente').innerHTML =
+            '<p style="color:var(--admin-danger);">No se pudo cargar la actividad.</p>';
+        }
+      }
+
+      await cargarEstadisticas();
+      await cargarActividad();
+    });
+  </script>
+</body>
+</html>

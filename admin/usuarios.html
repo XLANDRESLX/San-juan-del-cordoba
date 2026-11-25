@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Gestión de Usuarios – Panel de Administración</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/x-icon">
+</head>
+<body class="admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="../assets/img/logo.png" alt="Logo IE San Juan del Córdoba" width="48">
+        <h1>Admin Sanjuan</h1>
+      </div>
+      <ul class="admin-nav">
+        <li><a href="../admin/dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="../admin/articulos.html"><span>📰</span> Artículos</a></li>
+        <li><a href="../admin/paginas.html"><span>📄</span> Páginas</a></li>
+        <li><a href="../admin/multimedia.html"><span>🖼️</span> Multimedia</a></li>
+        <li><a href="../admin/institucional.html"><span>🏫</span> Institucional</a></li>
+        <li><a href="../admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        <li><a href="../admin/usuarios.html" class="active"><span>👥</span> Usuarios</a></li>
+      </ul>
+    </aside>
+
+    <div class="admin-content">
+      <header class="admin-header">
+        <div>
+          <h2>Gestión de Usuarios</h2>
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);">Administra los usuarios que pueden acceder al panel de administración.</p>
+        </div>
+        <button class="btn-admin btn-admin--primario" onclick="abrirModalUsuario()">+ Nuevo usuario</button>
+      </header>
+
+      <div id="msgUsuarios" class="msg" style="display:none;"></div>
+
+      <div class="tabla-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <td>Rol</th>
+              <td>Fecha de creación</td>
+              <td>Estado</th>
+              <th style="width:160px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyUsuarios">
+            <tr><td colspan="5" style="text-align:center;color:var(--admin-text-muted);padding:var(--space-xl);">Cargando usuarios...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal crear/editar usuario -->
+  <div id="modalUsuario" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:var(--space-lg);">
+    <div class="form-admin" style="max-width:500px;width:100%;">
+      <h2 id="modalTituloUsuario">Nuevo usuario</h2>
+      <form id="formUsuario" novalidate>
+        <input type="hidden" id="usuarioId">
+        <input type="hidden" id="usuarioAccion" value="crear">
+
+        <div class="form__grupo">
+          <label>Nombre de usuario <span style="color:var(--admin-danger);">*</span></label>
+          <input type="text" id="usrUsuario" required maxlength="50" placeholder="admin">
+        </div>
+
+        <div class="form__grupo">
+          <label>Contraseña <span style="color:var(--admin-danger);" id="lblPassword">*</span></label>
+          <input type="password" id="usrPassword" required maxlength="100" placeholder="••••••••">
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);margin-top:var(--space-xs);" id="pwdAyuda">Mínimo 6 caracteres.</p>
+        </div>
+
+        <div class="form__grupo">
+          <label>Rol</label>
+          <select id="usrRol">
+            <option value="administrador">Administrador</option>
+            <option value="editor">Editor</option>
+          </select>
+        </div>
+
+        <div class="form__grupo">
+          <label>Estado</label>
+          <select id="usrEstado">
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+        </div>
+
+        <div class="form-actions" style="justify-content:flex-end;">
+          <button type="button" class="btn-admin btn-admin--secundario" onclick="cerrarModalUsuario()">Cancelar</button>
+          <button type="submit" class="btn-admin btn-admin--primario" id="btnGuardarUsuario">Guardar usuario</button>
+        </div>
+      </form>
+      <div id="msgModalUsuario" class="msg" style="margin-top:var(--space-md);display:none;"></div>
+    </div>
+  </div>
+
+  <script src="../js/app-config.js"></script>
+  <script src="../js/admin/auth.js?v=5.0.0"></script>
+  <script src="../js/admin/api.js?v=5.0.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.sanjuanAuth.requireAuth();
+
+      const tbody = document.getElementById('tbodyUsuarios');
+      const msg = document.getElementById('msgUsuarios');
+
+      function mostrarMsg(texto, tipo) {
+        msg.textContent = texto;
+        msg.className = `msg msg--${tipo}`;
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 5000);
+      }
+
+      async function cargarUsuarios() {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--admin-text-muted);padding:var(--space-xl);">Cargando...</td></tr>';
+        try {
+          const resultado = await window.sanjuanAdminAPI.UsuariosAPI.listar();
+          if (resultado.status === 'success') {
+            renderizarTabla(resultado.data);
+          } else {
+            mostrarMsg(resultado.message || 'Error al cargar usuarios', 'error');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--admin-danger);">Error al cargar usuarios.</td></tr>';
+          }
+        } catch (err) {
+          mostrarMsg('Error de red.', 'error');
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--admin-danger);">Error de red.</td></tr>';
+        }
+      }
+
+      function renderizarTabla(usuarios) {
+        if (!usuarios || usuarios.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--admin-text-muted);padding:var(--space-xl);">No hay usuarios registrados.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = usuarios.map(u => `
+          <tr>
+            <td>${u.usuario || '(sin nombre)'}</td>
+            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${u.rol || 'editor'}</td>
+            <td style="font-size:var(--fs-sm);color:var(--admin-text-muted);">${u.fecha_creado || '-'}</td>
+            <td><span class="estado-badge estado-${u.activo === 'si' ? 'activo' : 'inactivo'}">${u.activo === 'si' ? 'Activo' : 'Inactivo'}</span></td>
+            <td>
+              <button class="btn-admin btn-admin--sm btn-admin--secundario" onclick="editarUsuario('${u.id}')" title="Editar">✏️</button>
+              <button class="btn-admin btn-admin--sm btn-admin--peligro" onclick="eliminarUsuario('${u.id}')" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      window.abrirModalUsuario = (id = null) => {
+        const modal = document.getElementById('modalUsuario');
+        const form = document.getElementById('formUsuario');
+        const titulo = document.getElementById('modalTituloUsuario');
+        const accion = document.getElementById('usuarioAccion');
+        const idInput = document.getElementById('usuarioId');
+        const lblPassword = document.getElementById('lblPassword');
+        const pwdAyuda = document.getElementById('pwdAyuda');
+
+        form.reset();
+        idInput.value = id || '';
+        accion.value = id ? 'editar' : 'crear';
+        titulo.textContent = id ? 'Editar usuario' : 'Nuevo usuario';
+        document.getElementById('msgModalUsuario').style.display = 'none';
+
+        if (id) {
+          lblPassword.textContent = 'Contraseña (dejar vacío para no cambiar)';
+          pwdAyuda.textContent = 'Si no se escribe, se mantiene la contraseña actual.';
+          document.getElementById('usrPassword').required = false;
+        } else {
+          lblPassword.textContent = 'Contraseña *';
+          pwdAyuda.textContent = 'Mínimo 6 caracteres.';
+          document.getElementById('usrPassword').required = true;
+        }
+
+        if (id) cargarUsuarioParaEditar(id);
+
+        modal.style.display = 'flex';
+      };
+
+      window.cerrarModalUsuario = () => {
+        document.getElementById('modalUsuario').style.display = 'none';
+      };
+
+      async function cargarUsuarioParaEditar(id) {
+        // Se obtendría de la lista ya cargada; simplificado: se busca en el DOM
+        // En una implementación completa se haría una llamada API individual
+        alert('Para editar un usuario, utiliza la función de edición desde la lista.');
+      }
+
+      window.editarUsuario = (id) => {
+        // Buscar en el DOM la fila del usuario
+        const fila = document.querySelector(`tr button[onclick="editarUsuario('${id}')"]`);
+        if (!fila) return;
+        const tr = fila.closest('tr');
+        const celdas = tr.querySelectorAll('td');
+        document.getElementById('usuarioId').value = id;
+        document.getElementById('usuarioAccion').value = 'editar';
+        document.getElementById('modalTituloUsuario').textContent = 'Editar usuario';
+        document.getElementById('usrUsuario').value = celdas[0].textContent;
+        document.getElementById('usrRol').value = celdas[1].textContent.trim();
+        document.getElementById('usrEstado').value = celdas[3].textContent.trim().toLowerCase() === 'activo' ? 'activo' : 'inactivo';
+        document.getElementById('lblPassword').textContent = 'Contraseña (dejar vacío para no cambiar)';
+        document.getElementById('pwdAyuda').textContent = 'Si no se escribe, se mantiene la contraseña actual.';
+        document.getElementById('usrPassword').required = false;
+        document.getElementById('usrPassword').value = '';
+        document.getElementById('msgModalUsuario').style.display = 'none';
+        document.getElementById('modalUsuario').style.display = 'flex';
+      };
+
+      window.eliminarUsuario = async (id) => {
+        const userActual = window.sanjuanAuth.getCurrentUser();
+        if (userActual && userActual.usuario && String(id) === String(userActual.id)) {
+          mostrarMsg('No puedes eliminar tu propio usuario desde esta vista.', 'error');
+          return;
+        }
+        if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+        try {
+          const resultado = await window.sanjuanAdminAPI.UsuariosAPI.eliminar(id);
+          if (resultado.status === 'success') {
+            mostrarMsg('Usuario eliminado correctamente.', 'ok');
+            cargarUsuarios();
+          } else {
+            mostrarMsg(resultado.message || 'Error al eliminar.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red.', 'error');
+        }
+      };
+
+      document.getElementById('formUsuario').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnGuardarUsuario');
+        btn.textContent = 'Guardando...';
+        btn.disabled = true;
+
+        const data = {
+          usuario: document.getElementById('usrUsuario').value,
+          password: document.getElementById('usrPassword').value,
+          rol: document.getElementById('usrRol').value,
+          activo: document.getElementById('usrEstado').value
+        };
+
+        const id = document.getElementById('usuarioId').value;
+        const accion = document.getElementById('usuarioAccion').value;
+
+        try {
+          let resultado;
+          if (accion === 'crear') {
+            resultado = await window.sanjuanAdminAPI.UsuariosAPI.crear(data);
+          } else {
+            resultado = await window.sanjuanAdminAPI.UsuariosAPI.actualizar(id, data);
+          }
+
+          const msgModal = document.getElementById('msgModalUsuario');
+          if (resultado.status === 'success') {
+            msgModal.textContent = 'Usuario guardado correctamente.';
+            msgModal.className = 'msg msg--ok';
+            msgModal.style.display = 'block';
+            setTimeout(() => { cerrarModalUsuario(); cargarUsuarios(); }, 800);
+          } else {
+            msgModal.textContent = resultado.message || 'Error al guardar usuario.';
+            msgModal.className = 'msg msg--error';
+            msgModal.style.display = 'block';
+          }
+        } catch (err) {
+          document.getElementById('msgModalUsuario').textContent = 'Error de red.';
+          document.getElementById('msgModalUsuario').className = 'msg msg--error';
+          document.getElementById('msgModalUsuario').style.display = 'block';
+        } finally {
+          btn.textContent = 'Guardar usuario';
+          btn.disabled = false;
+        }
+      });
+
+      document.getElementById('modalUsuario').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('modalUsuario')) cerrarModalUsuario();
+      });
+
+      cargarUsuarios();
+    });
+  </script>
+</body>
+</html>

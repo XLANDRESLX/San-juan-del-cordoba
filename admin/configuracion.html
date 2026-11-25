@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Configuración del Sitio – Panel de Administración</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/x-icon">
+</head>
+<body class="admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="../assets/img/logo.png" alt="Logo IE San Juan del Córdoba" width="48">
+        <h1>Admin Sanjuan</h1>
+      </div>
+      <ul class="admin-nav">
+        <li><a href="../admin/dashboard.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="../admin/articulos.html"><span>📰</span> Artículos</a></li>
+        <li><a href="../admin/paginas.html"><span>📄</span> Páginas</a></li>
+        <li><a href="../admin/multimedia.html"><span>🖼️</span> Multimedia</a></li>
+        <li><a href="../admin/institucional.html"><span>🏫</span> Institucional</a></li>
+        <li><a href="../admin/configuracion.html" class="active"><span>⚙️</span> Configuración</a></li>
+        <li><a href="../admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+      </ul>
+    </aside>
+
+    <div class="admin-content">
+      <header class="admin-header">
+        <div>
+          <h2>Configuración del Sitio</h2>
+          <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);">Administra la apariencia, navegación, redes sociales y SEO del sitio web.</p>
+        </div>
+        <button class="btn-admin btn-admin--primario" onclick="guardarConfiguracion()">Guardar configuración</button>
+      </header>
+
+      <div id="msgConfig" class="msg" style="display:none;"></div>
+
+      <div class="form-admin">
+        <h3 style="font-family:var(--font-titulo);margin:var(--space-xl) 0 var(--space-lg);color:var(--admin-text);">Apariencia</h3>
+
+        <div class="form__grupo">
+          <label>Nombre del sitio</label>
+          <input type="text" id="cfgNombreSitio" maxlength="100" placeholder="IE San Juan del Córdoba">
+        </div>
+
+        <div class="form__grupo">
+          <label>Descripción del sitio</label>
+          <input type="text" id="cfgDescripcionSitio" maxlength="300" placeholder="Descripción breve del sitio">
+        </div>
+
+        <div style="display:flex;gap:var(--space-md);">
+          <div class="form__grupo" style="flex:1;">
+            <label>Color principal</label>
+            <input type="color" id="cfgColorPrimario" value="#14426b">
+          </div>
+          <div class="form__grupo" style="flex:1;">
+            <label>Color secundario</label>
+            <input type="color" id="cfgColorSecundario" value="#e67e22">
+          </div>
+        </div>
+
+        <div class="form__grupo">
+          <label>Tipografía de títulos</label>
+          <select id="cfgFontTitulo">
+            <option value="Merriweather">Merriweather (serif)</option>
+            <option value="Open Sans">Open Sans (sans-serif)</option>
+            <option value="Playfair Display">Playfair Display (serif)</option>
+            <option value="Lato">Lato (sans-serif)</option>
+          </select>
+        </div>
+
+        <div class="form__grupo">
+          <label>Tamaño general del texto</label>
+          <select id="cfgTamanoTexto">
+            <option value="1rem">Normal (16px)</option>
+            <option value="1.0625rem">Mediano (17px)</option>
+            <option value="1.125rem">Grande (18px)</option>
+          </select>
+        </div>
+
+        <div class="form__grupo">
+          <label>Imagen de portada principal</label>
+          <input type="url" id="cfgImagenPortada" placeholder="URL de la imagen de portada">
+        </div>
+
+        <div class="form__grupo">
+          <label>Favicon (URL)</label>
+          <input type="url" id="cfgFavicon" placeholder="URL del favicon">
+        </div>
+
+        <h3 style="font-family:var(--font-titulo);margin:var(--space-xl) 0 var(--space-lg);color:var(--admin-text);">Navegación</h3>
+        <p style="font-size:var(--fs-sm);color:var(--admin-text-muted);margin-bottom:var(--space-lg);">
+          Los elementos del menú se gestionan desde el código del tema. Aquí puedes activar/desactivar secciones principales.
+        </p>
+
+        <div class="form__grupo">
+          <label>Mostrar sección de artículos en menú</label>
+          <select id="cfgMenuArticulos">
+            <option value="si">Sí</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="form__grupo">
+          <label>Mostrar sección de contacto en menú</label>
+          <select id="cfgMenuContacto">
+            <option value="si">Sí</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <h3 style="font-family:var(--font-titulo);margin:var(--space-xl) 0 var(--space-lg);color:var(--admin-text);">Redes sociales</h3>
+
+        <div style="display:flex;gap:var(--space-md);">
+          <div class="form__grupo" style="flex:1;">
+            <label>Facebook</label>
+            <input type="url" id="cfgFacebook" placeholder="https://facebook.com/">
+          </div>
+          <div class="form__grupo" style="flex:1;">
+            <label>Instagram</label>
+            <input type="url" id="cfgInstagram" placeholder="https://instagram.com/">
+          </div>
+        </div>
+
+        <div class="form__grupo">
+          <label>YouTube</label>
+          <input type="url" id="cfgYouTube" placeholder="https://youtube.com/">
+        </div>
+
+        <h3 style="font-family:var(--font-titulo);margin:var(--space-xl) 0 var(--space-lg);color:var(--admin-text);">SEO</h3>
+
+        <div class="form__grupo">
+          <label>Título general (SEO)</label>
+          <input type="text" id="cfgSeoTitulo" maxlength="100" placeholder="Título del sitio para motores de búsqueda">
+        </div>
+
+        <div class="form__grupo">
+          <label>Meta descripción general (SEO)</label>
+          <textarea id="cfgSeoDesc" rows="3" maxlength="300" placeholder="Descripción del sitio para motores de búsqueda"></textarea>
+        </div>
+
+        <div class="form__grupo">
+          <label>Imagen Open Graph (URL)</label>
+          <input type="url" id="cfgOgImage" placeholder="URL de la imagen para redes sociales">
+        </div>
+
+        <div class="form__grupo">
+          <label>URL canónica del sitio</label>
+          <input type="url" id="cfgCanonical" placeholder="https://tu-usuario.github.io/tu-repositorio/">
+        </div>
+
+        <h3 style="font-family:var(--font-titulo);margin:var(--space-xl) 0 var(--space-lg);color:var(--admin-text);">Información legal</h3>
+
+        <div class="form__grupo">
+          <label>Correo institucional</label>
+          <input type="email" id="cfgEmail" placeholder="contacto@ejemplo.edu.co">
+        </div>
+
+        <div class="form__grupo">
+          <label>Teléfono institucional</label>
+          <input type="tel" id="cfgTelefono" placeholder="+57 ...">
+        </div>
+
+        <div class="form__grupo">
+          <label>Dirección institucional</label>
+          <input type="text" id="cfgDireccion" placeholder="Dirección completa">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app-config.js"></script>
+  <script src="../js/admin/auth.js?v=5.0.0"></script>
+  <script src="../js/admin/api.js?v=5.0.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.sanjuanAuth.requireAuth();
+
+      const msg = document.getElementById('msgConfig');
+
+      function normalizarFuente(valor) {
+        const familia = String(valor || '').split(',')[0].replace(/['"]/g, '').trim();
+        const opciones = ['Merriweather', 'Open Sans', 'Playfair Display', 'Lato'];
+        return opciones.find(opcion => opcion.toLowerCase() === familia.toLowerCase()) || 'Merriweather';
+      }
+
+      function mostrarMsg(texto, tipo) {
+        msg.textContent = texto;
+        msg.className = `msg msg--${tipo}`;
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 5000);
+      }
+
+      async function cargarConfiguracion() {
+        try {
+          const resultado = await window.sanjuanAdminAPI.ConfiguracionAPI.obtener();
+          if (resultado.status === 'success' && resultado.data) {
+            const d = resultado.data;
+            document.getElementById('cfgNombreSitio').value = d.nombre_sitio || '';
+            document.getElementById('cfgDescripcionSitio').value = d.descripcion_sitio || '';
+            document.getElementById('cfgColorPrimario').value = d.color_primario || '#14426b';
+            document.getElementById('cfgColorSecundario').value = d.color_secundario || '#e67e22';
+            document.getElementById('cfgFontTitulo').value = normalizarFuente(d.font_titulo);
+            document.getElementById('cfgTamanoTexto').value = d.tamano_texto || '1rem';
+            document.getElementById('cfgImagenPortada').value = d.imagen_portada || '';
+            document.getElementById('cfgFavicon').value = d.favicon || '';
+            document.getElementById('cfgMenuArticulos').value = d.menu_articulos || 'si';
+            document.getElementById('cfgMenuContacto').value = d.menu_contacto || 'si';
+            document.getElementById('cfgFacebook').value = d.facebook || '';
+            document.getElementById('cfgInstagram').value = d.instagram || '';
+            document.getElementById('cfgYouTube').value = d.youtube || '';
+            document.getElementById('cfgSeoTitulo').value = d.seo_titulo || '';
+            document.getElementById('cfgSeoDesc').value = d.seo_descripcion || '';
+            document.getElementById('cfgOgImage').value = d.og_image || '';
+            document.getElementById('cfgCanonical').value = d.canonical || '';
+            document.getElementById('cfgEmail').value = d.email_institucional || '';
+            document.getElementById('cfgTelefono').value = d.telefono_institucional || '';
+            document.getElementById('cfgDireccion').value = d.direccion_institucional || '';
+          } else {
+            mostrarMsg(resultado.message || 'No se pudo cargar la configuración.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red al cargar configuración.', 'error');
+        }
+      }
+
+      window.guardarConfiguracion = async () => {
+        const datos = {
+          nombre_sitio: document.getElementById('cfgNombreSitio').value,
+          descripcion_sitio: document.getElementById('cfgDescripcionSitio').value,
+          color_primario: document.getElementById('cfgColorPrimario').value,
+          color_secundario: document.getElementById('cfgColorSecundario').value,
+          font_titulo: document.getElementById('cfgFontTitulo').value,
+          tamano_texto: document.getElementById('cfgTamanoTexto').value,
+          imagen_portada: document.getElementById('cfgImagenPortada').value,
+          favicon: document.getElementById('cfgFavicon').value,
+          menu_articulos: document.getElementById('cfgMenuArticulos').value,
+          menu_contacto: document.getElementById('cfgMenuContacto').value,
+          facebook: document.getElementById('cfgFacebook').value,
+          instagram: document.getElementById('cfgInstagram').value,
+          youtube: document.getElementById('cfgYouTube').value,
+          seo_titulo: document.getElementById('cfgSeoTitulo').value,
+          seo_descripcion: document.getElementById('cfgSeoDesc').value,
+          og_image: document.getElementById('cfgOgImage').value,
+          canonical: document.getElementById('cfgCanonical').value,
+          email_institucional: document.getElementById('cfgEmail').value,
+          telefono_institucional: document.getElementById('cfgTelefono').value,
+          direccion_institucional: document.getElementById('cfgDireccion').value
+        };
+
+        try {
+          const resultado = await window.sanjuanAdminAPI.ConfiguracionAPI.guardar(datos);
+          if (resultado.status === 'success') {
+            mostrarMsg('Configuración guardada correctamente.', 'ok');
+          } else {
+            mostrarMsg(resultado.message || 'Error al guardar configuración.', 'error');
+          }
+        } catch (err) {
+          mostrarMsg('Error de red al guardar configuración.', 'error');
+        }
+      };
+
+      cargarConfiguracion();
+    });
+  </script>
+</body>
+</html>

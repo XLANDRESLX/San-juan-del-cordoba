@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Iniciar sesión – Panel de Administración</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/x-icon">
+</head>
+<body class="admin">
+  <div class="admin-login">
+    <div class="login-card">
+      <h1>IE San Juan del Córdoba</h1>
+      <p style="text-align:center;color:var(--admin-text-muted);margin-bottom:var(--space-xl);">
+        Panel de administración institucional
+      </p>
+      <div id="loginMsg" class="msg" style="display:none;"></div>
+      <form id="formLogin" novalidate>
+        <div class="form__grupo">
+          <label for="usuario">Usuario</label>
+          <input type="text" id="usuario" name="usuario" required placeholder="Usuario">
+        </div>
+        <div class="form__grupo">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" name="password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-admin btn-admin--primario" id="btnLogin">Iniciar sesión</button>
+      </form>
+      <p style="text-align:center;margin-top:var(--space-lg);font-size:var(--fs-sm);color:var(--admin-text-muted);">
+        ¿No tienes acceso? Contacta con el administrador del sistema.
+      </p>
+    </div>
+  </div>
+
+  <script src="../js/app-config.js"></script>
+  <script src="../js/admin/auth.js?v=5.0.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('formLogin');
+      const btn = document.getElementById('btnLogin');
+      const msg = document.getElementById('loginMsg');
+
+      // Si ya hay sesión, redirigir al dashboard
+      if (window.sanjuanAuth.isAuthenticated()) {
+        window.location.href = '../admin/dashboard.html';
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const usuario = form.usuario.value.trim();
+        const password = form.password.value;
+
+        if (!usuario || !password) {
+          mostrarMsg('Por favor ingresa usuario y contraseña.', 'error');
+          return;
+        }
+
+        btn.textContent = 'Iniciando sesión...';
+        btn.disabled = true;
+        msg.style.display = 'none';
+
+        const resultado = await window.sanjuanAuth.login(usuario, password);
+
+        btn.textContent = 'Iniciar sesión';
+        btn.disabled = false;
+
+        if (resultado.ok) {
+          window.location.href = '../admin/dashboard.html';
+        } else {
+          mostrarMsg(resultado.message, 'error');
+        }
+      });
+
+      function mostrarMsg(texto, tipo) {
+        msg.textContent = texto;
+        msg.className = `msg msg--${tipo}`;
+        msg.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
